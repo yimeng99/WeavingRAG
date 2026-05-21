@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: llm-weaving
+    version: 0.0.1
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+      file-size-threshold: 2KB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/llm_weaving?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+  # 数据库初始化配置
+  sql:
+    init:
+      mode: never
+      continue-on-error: false
+  # MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.weaving.llm.common.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# 阿里云相关配置
+aliyun:
+  # 通义千问模型配置
+  api-key: ${ALIYUN_API_KEY}
+  model-name: qwen3.5-flash
+  base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+  timeout: PT2M
+  # OSS 对象存储配置
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    accessKeyId: ${ALIYUN_ACCESS_KEY_ID}
+    accessKeySecret: ${ALIYUN_ACCESS_KEY_SECRET}
+    bucketName: your_bucket_name
+  # WPS Web Office 配置
+  wps:
+    endpoint: https://wps-office-api.aliyuncs.com
+    appId: ${WPS_APP_ID}
+    appKey: ${WPS_APP_KEY}
+    region: cn-beijing
+
+# Ollama 配置 (可选)
+ollama:
+  base-url: http://localhost:11434
+  embedding-model: quentinz/bge-large-zh-v1.5
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+
+file:
+  upload:
+    path: uploads
+
+# Chroma 向量数据库配置
+chroma:
+  enabled: true
+  host: localhost
+  port: 8000
+  collection-name: knowledge_vectors
+
+logging:
+  level:
+    dev.langchain4j: debug
+
+# JWT 配置
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+
+# Knife4j OpenAPI 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn

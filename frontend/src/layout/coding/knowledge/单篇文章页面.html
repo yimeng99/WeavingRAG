@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>微服务架构设计最佳实践 | 知库·灵枢</title>
+    <!-- Tailwind CSS v3 + Font Awesome 6 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- 代码高亮样式 (简单模拟) -->
+    <style>
+        * {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c084fc;
+            border-radius: 10px;
+        }
+
+        .nav-active {
+            background: linear-gradient(95deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%);
+            border-right: 2px solid #8b5cf6;
+            color: #7c3aed;
+        }
+
+        .markdown-body h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .markdown-body h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .markdown-body h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        .markdown-body p {
+            line-height: 1.75;
+            margin-bottom: 1rem;
+            color: #4b5563;
+        }
+        .markdown-body code {
+            background-color: #f3f4f6;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-family: monospace;
+            color: #d946ef;
+        }
+        .markdown-body pre {
+            background-color: #1f2937;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            color: #e5e7eb;
+            padding: 0;
+        }
+        .markdown-body ul, .markdown-body ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: #4b5563;
+        }
+        .markdown-body li {
+            margin-bottom: 0.25rem;
+        }
+        .markdown-body blockquote {
+            border-left: 4px solid #c084fc;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .card-refined {
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .card-refined:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -8px rgba(139, 92, 246, 0.12);
+        }
+
+        .right-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .full-width-container {
+            width: 100%;
+            padding: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .full-width-container {
+                padding: 1.75rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .full-width-container {
+                padding: 2rem;
+            }
+        }
+
+        .toc-link {
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .toc-link:hover {
+            color: #7c3aed;
+        }
+        .toc-link.active {
+            color: #7c3aed;
+            font-weight: 500;
+            border-left-color: #7c3aed;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased text-gray-600 overflow-hidden">
+
+<div class="flex h-screen overflow-hidden bg-gray-50">
+
+    <!-- ========= 侧边栏：固定宽度 ========= -->
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm z-20 flex-shrink-0">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-sm">
+                <i class="fas fa-brain text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent">知库·灵枢</h1>
+                <p class="text-[9px] text-gray-400">企业知识中枢</p>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-4">
+            <nav class="px-3 space-y-0.5">
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-tachometer-alt w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>仪表板</span>
+                </a>
+                <a href="#" class="nav-active flex items-center px-3 py-2 text-sm font-medium rounded-lg text-purple-700 transition-all">
+                    <i class="fas fa-book-open w-4 h-4 mr-2.5 text-purple-500 text-xs"></i>
+                    <span>知识库管理</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-tags w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>分类与标签</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-users w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-chart-pie w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>洞察分析</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-cog w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>系统配置</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="border-t border-gray-100 p-3">
+            <div class="bg-gray-50/80 rounded-lg p-2 flex items-center space-x-2.5 hover:bg-gray-100 transition cursor-pointer">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                    张
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-gray-700">张明远</p>
+                    <p class="text-[10px] text-gray-400 truncate">ming@zhiku.com</p>
+                </div>
+                <i class="fas fa-sign-out-alt text-gray-400 text-xs hover:text-purple-500 cursor-pointer"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========= 知识文档详情页 ========= -->
+    <div class="right-main">
+        <!-- 顶部栏 -->
+        <header class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-20 px-6 py-2.5 flex justify-between items-center flex-shrink-0">
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-purple-500 md:hidden">
+                    <i class="fas fa-bars text-base"></i>
+                </button>
+                <nav class="text-xs">
+                    <ol class="inline-flex items-center space-x-2">
+                        <li><a href="#" class="text-gray-500 hover:text-purple-600"><i class="fas fa-layer-group mr-1 text-purple-400 text-[10px]"></i>工作台</a></li>
+                        <li><i class="fas fa-chevron-right text-gray-300 text-[8px]"></i></li>
+                        <li><a href="#" class="text-gray-500 hover:text-purple-600">知识库管理</a></li>
+                        <li><i class="fas fa-chevron-right text-gray-300 text-[8px]"></i></li>
+                        <li><span class="text-gray-700 font-medium">微服务架构设计最佳实践</span></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="relative text-gray-500 hover:text-purple-500">
+                    <i class="far fa-bell text-base"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-purple-500 rounded-full ring-1 ring-white"></span>
+                </button>
+                <div class="flex gap-2">
+                    <button class="border border-gray-200 text-gray-600 hover:text-purple-600 hover:border-purple-300 rounded-lg px-3 py-1.5 text-xs transition flex items-center gap-1">
+                        <i class="fas fa-edit text-[10px]"></i> 编辑
+                    </button>
+                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition flex items-center space-x-1.5">
+                        <i class="fas fa-share-alt text-xs"></i>
+                        <span>分享</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="right-content">
+            <div class="full-width-container max-w-6xl mx-auto">
+                <!-- 文档主体区域 - 双栏布局: 左侧内容 + 右侧目录 -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <!-- 左侧文档内容区 -->
+                    <div class="lg:col-span-3">
+                        <!-- 文档头部信息 -->
+                        <div class="mb-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="status-badge bg-green-50 text-green-700">已发布</span>
+                                <span class="text-[10px] text-gray-400"><i class="far fa-calendar-alt mr-1"></i>更新于 2025年3月22日</span>
+                            </div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-3">微服务架构设计最佳实践（2025企业版）</h1>
+                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                                        <i class="fas fa-user text-purple-500 text-[10px]"></i>
+                                    </div>
+                                    <span>陈思琪 · 技术总监</span>
+                                </div>
+                                <div><i class="far fa-clock mr-1"></i>阅读时长 15分钟</div>
+                                <div><i class="far fa-eye mr-1"></i>2.8k阅读</div>
+                            </div>
+                        </div>
+
+                        <!-- 文档标签 -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs">后端架构</span>
+                            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs">微服务</span>
+                            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs">设计模式</span>
+                            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs">分布式系统</span>
+                        </div>
+
+                        <!-- 文档正文内容 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 markdown-body">
+                            <p>随着企业业务规模的不断扩大，单体架构逐渐暴露出维护困难、部署缓慢、扩展受限等问题。微服务架构作为一种将单一应用程序划分为一组小服务的架构风格，已成为现代企业应用开发的主流选择。本文将从实践角度出发，深入探讨微服务架构的设计原则与最佳实践。</p>
+
+                            <h2>1. 服务拆分原则</h2>
+                            <p>合理的服务边界是微服务架构成功的关键。服务拆分应遵循以下核心原则：</p>
+                            <ul>
+                                <li><strong>单一职责原则</strong>：每个服务只负责一个明确的业务能力</li>
+                                <li><strong>高内聚低耦合</strong>：服务内部高度关联，服务之间依赖最小化</li>
+                                <li><strong>边界上下文</strong>：基于领域驱动设计（DDD）划分业务边界</li>
+                                <li><strong>数据独立性</strong>：每个服务拥有独立的数据库，避免跨服务事务</li>
+                            </ul>
+
+                            <h2>2. 通信协议选型</h2>
+                            <p>微服务之间的通信方式直接影响系统性能和可维护性。根据场景选择合适的协议：</p>
+                            <pre><code>// RESTful API - 适用场景：对外接口、简单数据交互
+GET /api/v1/orders/{id}
+POST /api/v1/orders
+
+// gRPC - 适用场景：内部服务间高性能调用
+service OrderService {
+    rpc GetOrder(OrderRequest) returns (OrderResponse);
+}
+
+// 消息队列 - 适用场景：异步处理、削峰填谷
+Kafka / RabbitMQ 用于事件驱动架构</code></pre>
+
+                            <h2>3. 服务治理与可观测性</h2>
+                            <p>分布式系统的运维复杂度显著提升，完善的服务治理体系至关重要：</p>
+                            <ul>
+                                <li><strong>服务注册与发现</strong>：Consul / Nacos / Eureka 实现动态服务发现</li>
+                                <li><strong>负载均衡</strong>：客户端负载均衡（Ribbon）与服务端负载均衡（Nginx）结合</li>
+                                <li><strong>熔断降级</strong>：Sentinel / Hystrix 实现故障隔离</li>
+                                <li><strong>分布式链路追踪</strong>：SkyWalking / Jaeger 追踪请求全链路</li>
+                                <li><strong>日志聚合</strong>：ELK Stack 实现日志集中管理</li>
+                            </ul>
+
+                            <blockquote>
+                                💡 最佳实践：在生产环境中，建议将可观测性三大支柱（日志、指标、链路追踪）统一集成，形成完整的运维监控闭环。
+                            </blockquote>
+
+                            <h2>4. 分布式事务解决方案</h2>
+                            <p>跨服务的数据一致性是微服务架构的经典难题，以下是几种主流解决方案：</p>
+                            <ul>
+                                <li><strong>两阶段提交（2PC）</strong>：强一致性场景，但性能较差</li>
+                                <li><strong>TCC（Try-Confirm-Cancel）</strong>：高性能，业务侵入性强</li>
+                                <li><strong>SAGA</strong>：长事务场景，通过补偿机制保证最终一致性</li>
+                                <li><strong>本地消息表 + 消息队列</strong>：最终一致性，实现简单</li>
+                            </ul>
+
+                            <h2>5. 容器化部署与Kubernetes</h2>
+                            <p>Kubernetes已成为微服务部署的事实标准，通过容器化可以实现：</p>
+                            <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: order-service:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"</code></pre>
+
+                            <h2>6. 安全架构设计</h2>
+                            <p>微服务环境下的安全防护需要分层考虑：</p>
+                            <ul>
+                                <li><strong>API网关</strong>：统一认证授权、流量管控、安全防护</li>
+                                <li><strong>JWT令牌</strong>：无状态认证，避免Session共享</li>
+                                <li><strong>mTLS双向认证</strong>：服务间通信加密</li>
+                                <li><strong>敏感信息加密</strong>：使用Vault等密钥管理工具</li>
+                            </ul>
+
+                            <h2>7. 持续交付与DevOps</h2>
+                            <p>微服务架构需要配套的CI/CD流水线：</p>
+                            <ul>
+                                <li>GitLab CI / GitHub Actions 实现自动化构建</li>
+                                <li>容器镜像仓库管理（Harbor / Docker Hub）</li>
+                                <li>ArgoCD / Flux 实现GitOps持续部署</li>
+                                <li>灰度发布与金丝雀发布策略</li>
+                            </ul>
+
+                            <h2>结语</h2>
+                            <p>微服务架构并非银弹，企业在引入时需要权衡业务复杂度、团队能力与运维成本。建议从业务痛点出发，逐步演进，而非一刀切地全盘微服务化。通过合理的架构设计和工程实践，微服务确实能够帮助企业构建高弹性、易维护的现代化应用系统。</p>
+                        </div>
+
+                        <!-- 文档互动区域 -->
+                        <div class="mt-8 flex items-center justify-between pt-6 border-t border-gray-100">
+                            <div class="flex items-center gap-4">
+                                <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition text-gray-600 hover:text-purple-600">
+                                    <i class="far fa-thumbs-up"></i>
+                                    <span class="text-sm">有帮助 (156)</span>
+                                </button>
+                                <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition text-gray-600 hover:text-purple-600">
+                                    <i class="far fa-bookmark"></i>
+                                    <span class="text-sm">收藏</span>
+                                </button>
+                                <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-purple-50 transition text-gray-600 hover:text-purple-600">
+                                    <i class="far fa-flag"></i>
+                                    <span class="text-sm">举报</span>
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-400">
+                                <i class="fas fa-share-alt mr-1"></i> 分享文档
+                            </div>
+                        </div>
+
+                        <!-- 评论区 -->
+                        <div class="mt-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-comments text-purple-500"></i>
+                                评论 (23)
+                            </h3>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-user text-purple-500 text-xs"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <textarea rows="2" placeholder="写下你的评论..." class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-purple-300"></textarea>
+                                        <div class="flex justify-end mt-2">
+                                            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg text-xs font-medium">发布评论</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600 text-xs font-semibold">李</div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-sm font-medium text-gray-800">李明轩</span>
+                                            <span class="text-[10px] text-gray-400">2天前</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">非常实用的文章，关于服务拆分的部分讲得很透彻，正好解决了我目前的困惑！</p>
+                                        <div class="flex gap-3 mt-2">
+                                            <button class="text-[10px] text-gray-400 hover:text-purple-500"><i class="far fa-thumbs-up mr-1"></i>12</button>
+                                            <button class="text-[10px] text-gray-400 hover:text-purple-500">回复</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 text-xs font-semibold">王</div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-sm font-medium text-gray-800">王芳</span>
+                                            <span class="text-[10px] text-gray-400">5天前</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">感谢分享！分布式事务那部分讲得很清晰，SAGA模式的补偿机制有更详细的案例吗？</p>
+                                        <div class="flex gap-3 mt-2">
+                                            <button class="text-[10px] text-gray-400 hover:text-purple-500"><i class="far fa-thumbs-up mr-1"></i>8</button>
+                                            <button class="text-[10px] text-gray-400 hover:text-purple-500">回复</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧边栏：目录 + 相关推荐 -->
+                    <div class="lg:col-span-1">
+                        <!-- 目录导航 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-20 card-refined">
+                            <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-list-ul text-purple-500 text-xs"></i>
+                                目录
+                            </h3>
+                            <div class="space-y-2 text-xs">
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">1. 服务拆分原则</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">2. 通信协议选型</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">3. 服务治理与可观测性</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">4. 分布式事务解决方案</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">5. 容器化部署与Kubernetes</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">6. 安全架构设计</div>
+                                <div class="toc-link pl-0 text-gray-600 hover:text-purple-600 cursor-pointer">7. 持续交付与DevOps</div>
+                            </div>
+                        </div>
+
+                        <!-- 作者信息卡片 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mt-4 card-refined">
+                            <h3 class="text-sm font-semibold text-gray-800 mb-3">关于作者</h3>
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-purple-600 flex items-center justify-center text-white font-semibold">陈</div>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">陈思琪</p>
+                                    <p class="text-[10px] text-gray-500">技术总监 · 架构师</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-3">10年架构设计经验，专注于微服务、云原生领域，著有《企业架构实战》</p>
+                            <button class="w-full text-xs text-purple-600 border border-purple-200 rounded-lg py-1.5 hover:bg-purple-50 transition">关注作者</button>
+                        </div>
+
+                        <!-- 相关推荐 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mt-4 card-refined">
+                            <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-purple-500 text-xs"></i>
+                                相关推荐
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="group cursor-pointer">
+                                    <a href="#" class="text-xs font-medium text-gray-700 group-hover:text-purple-600 transition">云原生架构演进之路</a>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">1.2k阅读 · 3天前</p>
+                                </div>
+                                <div class="group cursor-pointer">
+                                    <a href="#" class="text-xs font-medium text-gray-700 group-hover:text-purple-600 transition">Kubernetes 最佳实践指南</a>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">2.1k阅读 · 1周前</p>
+                                </div>
+                                <div class="group cursor-pointer">
+                                    <a href="#" class="text-xs font-medium text-gray-700 group-hover:text-purple-600 transition">分布式系统设计模式详解</a>
+                                    <p class="text-[10px] text-gray-400 mt-0.5">980阅读 · 5天前</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 简单的目录滚动高亮（演示效果）
+    const tocLinks = document.querySelectorAll('.toc-link');
+    tocLinks.forEach((link, index) => {
+        link.addEventListener('click', () => {
+            tocLinks.forEach(l => l.classList.remove('active', 'text-purple-600', 'font-medium'));
+            link.classList.add('active', 'text-purple-600', 'font-medium');
+            // 模拟滚动到对应标题位置
+            const headers = document.querySelectorAll('.markdown-body h2');
+            if (headers[index]) {
+                headers[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+</body>
+</html>

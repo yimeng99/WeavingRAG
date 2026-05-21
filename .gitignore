@@ -1,0 +1,32 @@
+### IDE ###
+.vscode/
+.idea/
+*.iml
+
+### Build ###
+target/
+build/
+*.class
+*.jar
+*.war
+
+### Config - DO NOT COMMIT ###
+application.yml
+application-dev.yml
+application-prod.yml
+file.yml
+*.local.yml
+!application.example.yml
+!file-example.yml
+
+### Logs & Temp ###
+logs/
+*.log
+nul
+
+### Uploads ###
+uploads/
+
+### OS ###
+.DS_Store
+Thumbs.db

@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 精致卡片悬浮效果 */
+.card-refined {
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.card-refined:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px -8px rgba(139, 92, 246, 0.12);
+}
+
+/* 优雅滚动条 */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f5;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c084fc;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a855f7;
+}
+
+/* 表格行 hover */
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.data-table tbody tr:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* 精致分页器 */
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  background-color: white;
+  border: 1px solid #e9ecef;
+  color: #4b5563;
+}
+
+.pagination-btn:hover:not(.active):not(:disabled) {
+  background-color: #faf5ff;
+  border-color: #c084fc;
+  color: #7c3aed;
+}
+
+.pagination-btn.active {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+  color: white;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 右侧区域完全铺满 */
+.right-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.right-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.full-width-container {
+  width: 100%;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .full-width-container {
+    padding: 1.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .full-width-container {
+    padding: 2rem;
+  }
+}
+
+/* Layout utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

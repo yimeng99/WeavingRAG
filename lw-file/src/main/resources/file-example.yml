@@ -1,0 +1,36 @@
+# 文件存储配置
+file:
+  storage:
+    # 本地存储路径
+    local-path: uploads
+    # 最大文件大小（100MB）
+    max-file-size: 104857600
+    # 允许的文件扩展名
+    allowed-extensions:
+      - pdf
+      - doc
+      - docx
+      - xls
+      - xlsx
+      - ppt
+      - pptx
+      - txt
+      - md
+      - csv
+      - jpg
+      - jpeg
+      - png
+      - gif
+      - bmp
+      - zip
+      - rar
+      - 7z
+
+# 阿里云 OSS 配置
+aliyun:
+  oss:
+    enabled: false  # 设为 true 启用 OSS 存储
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    bucket-name: ${OSS_BUCKET_NAME}
+    accessKeyId: ${ALIYUN_ACCESS_KEY_ID}
+    accessKeySecret: ${ALIYUN_ACCESS_KEY_SECRET}

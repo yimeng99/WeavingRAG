@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>企业知识库 | 紫韵精致后台</title>
+    <!-- Tailwind CSS v3 + Font Awesome 6 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter 现代字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        /* 精致卡片悬浮效果 */
+        .card-refined {
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .card-refined:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px -8px rgba(139, 92, 246, 0.12);
+        }
+
+        /* 优雅滚动条 */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c084fc;
+            border-radius: 10px;
+        }
+
+        /* 聚焦环 */
+        input:focus, button:focus-visible {
+            outline: none;
+            ring: 2px solid #a855f7;
+            ring-offset: 1px;
+        }
+
+        /* 表格行hover */
+        .data-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        /* 侧边栏激活样式 */
+        .nav-active {
+            background: linear-gradient(95deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%);
+            border-right: 2px solid #8b5cf6;
+            color: #7c3aed;
+        }
+
+        /* 精致分页器 */
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            background-color: white;
+            border: 1px solid #e9ecef;
+            color: #4b5563;
+        }
+
+        .pagination-btn:hover:not(.active):not(:disabled) {
+            background-color: #faf5ff;
+            border-color: #c084fc;
+            color: #7c3aed;
+        }
+
+        .pagination-btn.active {
+            background-color: #7c3aed;
+            border-color: #7c3aed;
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* 关键修复：右侧区域完全铺满，无任何宽度限制 */
+        .right-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        /* 内容容器：完全铺满，不设置max-width限制 */
+        .full-width-container {
+            width: 100%;
+            padding: 1.5rem;
+        }
+
+        /* 卡片内部保持精致，但外层容器完全铺满 */
+        @media (min-width: 768px) {
+            .full-width-container {
+                padding: 1.75rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .full-width-container {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased text-gray-600 overflow-hidden">
+
+<div class="flex h-screen overflow-hidden bg-gray-50">
+
+    <!-- ========= 侧边栏：固定宽度 ========= -->
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm z-20 flex-shrink-0">
+        <!-- Logo区 -->
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-sm">
+                <i class="fas fa-brain text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent">知库·灵枢</h1>
+                <p class="text-[9px] text-gray-400">企业知识中枢</p>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <div class="flex-1 overflow-y-auto py-4">
+            <nav class="px-3 space-y-0.5">
+                <a href="#" class="nav-active flex items-center px-3 py-2 text-sm font-medium rounded-lg text-purple-700 transition-all">
+                    <i class="fas fa-tachometer-alt w-4 h-4 mr-2.5 text-purple-500 text-xs"></i>
+                    <span>仪表板</span>
+                    <span class="ml-auto text-[9px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full">新</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-book-open w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>知识库管理</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-tags w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>分类与标签</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-users w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>用户与权限</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-chart-pie w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>洞察分析</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-cog w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>系统配置</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- 底部用户卡片 -->
+        <div class="border-t border-gray-100 p-3">
+            <div class="bg-gray-50/80 rounded-lg p-2 flex items-center space-x-2.5 hover:bg-gray-100 transition cursor-pointer">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                    张
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-gray-700">张明远</p>
+                    <p class="text-[10px] text-gray-400 truncate">ming@zhiku.com</p>
+                </div>
+                <i class="fas fa-sign-out-alt text-gray-400 text-xs hover:text-purple-500 cursor-pointer"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========= 右侧主内容区：完全铺满，左右撑满 ========= -->
+    <div class="right-main">
+        <!-- 顶部栏：铺满宽度 -->
+        <header class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-20 px-6 py-2.5 flex justify-between items-center flex-shrink-0">
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-purple-500 md:hidden">
+                    <i class="fas fa-bars text-base"></i>
+                </button>
+                <nav class="text-xs">
+                    <ol class="inline-flex items-center space-x-2">
+                        <li><a href="#" class="text-gray-500 hover:text-purple-600"><i class="fas fa-layer-group mr-1 text-purple-400 text-[10px]"></i>工作台</a></li>
+                        <li><i class="fas fa-chevron-right text-gray-300 text-[8px]"></i></li>
+                        <li><span class="text-gray-700 font-medium">知识库总览</span></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="relative text-gray-500 hover:text-purple-500">
+                    <i class="far fa-bell text-base"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-purple-500 rounded-full ring-1 ring-white"></span>
+                </button>
+                <button class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition flex items-center space-x-1.5">
+                    <i class="fas fa-plus-circle text-xs"></i>
+                    <span>新建知识</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- 主内容区域：完全铺满，无宽度限制 -->
+        <div class="right-content">
+            <div class="full-width-container">
+                <!-- 统计卡片：网格自动铺满 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-gray-500 text-xs font-medium">知识总量</p>
+                                <p class="text-2xl font-bold text-gray-800 mt-1">1,428</p>
+                                <span class="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full inline-flex items-center mt-1"><i class="fas fa-arrow-up text-[8px] mr-0.5"></i> +15.2%</span>
+                            </div>
+                            <div class="p-2 bg-purple-50 rounded-xl"><i class="fas fa-database text-purple-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">活跃用户</p><p class="text-2xl font-bold text-gray-800 mt-1">423</p><span class="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full"><i class="fas fa-arrow-up text-[8px] mr-0.5"></i> +9%</span></div>
+                            <div class="p-2 bg-purple-50 rounded-xl"><i class="fas fa-user-astronaut text-purple-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">今日访问</p><p class="text-2xl font-bold text-gray-800 mt-1">1,204</p><span class="text-[10px] text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-full"><i class="fas fa-chart-line text-[8px] mr-0.5"></i> +21%</span></div>
+                            <div class="p-2 bg-purple-50 rounded-xl"><i class="fas fa-chart-simple text-purple-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">待审核</p><p class="text-2xl font-bold text-gray-800 mt-1">9</p><a href="#" class="text-[10px] text-purple-600 hover:text-purple-700 font-medium inline-flex items-center mt-1">立即处理 <i class="fas fa-arrow-right ml-0.5 text-[8px]"></i></a></div>
+                            <div class="p-2 bg-purple-50 rounded-xl"><i class="fas fa-hourglass-half text-purple-500 text-base"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 双栏布局：完全铺满 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                    <!-- 左侧热门知识 -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden card-refined">
+                        <div class="border-b border-gray-100 px-5 py-3 flex justify-between items-center">
+                            <h2 class="font-semibold text-gray-800 text-sm flex items-center"><i class="fas fa-fire-flame-curved text-purple-500 mr-2 text-sm"></i> 热门知识 · 本周飙升</h2>
+                            <a href="#" class="text-xs font-medium text-purple-600 hover:text-purple-700">全部榜单 <i class="fas fa-arrow-right ml-1 text-[9px]"></i></a>
+                        </div>
+                        <div class="divide-y divide-gray-50">
+                            <div class="px-5 py-3 hover:bg-purple-50/20 transition group">
+                                <a href="#" class="text-gray-800 font-medium text-sm group-hover:text-purple-600 transition">微服务架构设计最佳实践（2025企业版）</a>
+                                <div class="flex items-center text-[10px] text-gray-400 mt-1 space-x-3">
+                                    <span><i class="far fa-eye mr-0.5"></i> 2.8k阅读</span>
+                                    <span><i class="far fa-thumbs-up mr-0.5"></i> 156点赞</span>
+                                    <span class="text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-full">🔥 热门</span>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 hover:bg-purple-50/20 transition group">
+                                <a href="#" class="text-gray-800 font-medium text-sm group-hover:text-purple-600">React 19 + 服务端组件架构实践</a>
+                                <div class="flex items-center text-[10px] text-gray-400 mt-1 space-x-3">
+                                    <span><i class="far fa-eye mr-0.5"></i> 2.1k阅读</span>
+                                    <span><i class="far fa-thumbs-up mr-0.5"></i> 102点赞</span>
+                                    <span class="text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-full">前沿</span>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 hover:bg-purple-50/20 transition group">
+                                <a href="#" class="text-gray-800 font-medium text-sm group-hover:text-purple-600">数据湖 vs 数据仓库: 选型与融合指南</a>
+                                <div class="flex items-center text-[10px] text-gray-400 mt-1 space-x-3">
+                                    <span><i class="far fa-eye mr-0.5"></i> 1.5k阅读</span>
+                                    <span><i class="far fa-thumbs-up mr-0.5"></i> 88点赞</span>
+                                    <span class="text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-full">精选</span>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 hover:bg-purple-50/20 transition group">
+                                <a href="#" class="text-gray-800 font-medium text-sm group-hover:text-purple-600">AI Agent 在企业知识库中的落地场景</a>
+                                <div class="flex items-center text-[10px] text-gray-400 mt-1 space-x-3">
+                                    <span><i class="far fa-eye mr-0.5"></i> 1.2k阅读</span>
+                                    <span><i class="far fa-thumbs-up mr-0.5"></i> 74点赞</span>
+                                    <span class="text-purple-600 bg-purple-50 px-1.5 py-0.5 rounded-full">AI专题</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧动态+待办 -->
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 card-refined">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-semibold text-gray-800 text-xs flex items-center"><i class="far fa-bell text-purple-500 mr-1.5 text-xs"></i> 实时动态</h3>
+                                <a href="#" class="text-purple-500 text-[10px] font-medium">全部</a>
+                            </div>
+                            <ul class="space-y-2.5">
+                                <li class="flex items-start space-x-2"><div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1"></div><div><p class="text-xs text-gray-700">技术部李明更新《K8s 最佳实践》</p><span class="text-[9px] text-gray-400">1小时前</span></div></li>
+                                <li class="flex items-start space-x-2"><div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1"></div><div><p class="text-xs text-gray-700">王芳创建「AI 工具集」智能分类</p><span class="text-[9px] text-gray-400">3小时前</span></div></li>
+                                <li class="flex items-start space-x-2"><div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1"></div><div><p class="text-xs text-gray-700">《设计系统 2.0》通过AI审核</p><span class="text-[9px] text-gray-400">昨天</span></div></li>
+                                <li class="flex items-start space-x-2"><div class="w-1.5 h-1.5 rounded-full bg-purple-400 mt-1"></div><div><p class="text-xs text-gray-700">知识库总访问量突破 12w+</p><span class="text-[9px] text-gray-400">昨天</span></div></li>
+                            </ul>
+                        </div>
+                        <div class="bg-gradient-to-br from-white via-purple-50/30 to-purple-50/10 rounded-xl border border-purple-100/50 p-4 card-refined">
+                            <h3 class="font-semibold text-gray-800 text-xs flex items-center mb-2"><i class="fas fa-list-check text-purple-500 mr-1.5 text-xs"></i> 待处理事项</h3>
+                            <p class="text-2xl font-bold text-gray-800">6</p>
+                            <p class="text-[10px] text-gray-500 mb-3">待审核知识 · 3 条归档建议</p>
+                            <button class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium py-2 rounded-lg transition shadow-sm flex items-center justify-center space-x-1">
+                                <i class="fas fa-check-double text-[10px]"></i><span>立即处理</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 知识资产表格：完全铺满 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden card-refined mb-6">
+                    <div class="px-5 py-3 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+                        <div>
+                            <h2 class="font-semibold text-gray-800 text-sm flex items-center"><i class="fas fa-table-list text-purple-500 mr-2 text-sm"></i> 知识资产库</h2>
+                            <p class="text-[10px] text-gray-400 mt-0.5">企业核心知识文档，智能检索与权限管理</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                                <input type="text" placeholder="搜索标题、作者或标签" class="pl-7 pr-2.5 py-1.5 border border-gray-200 rounded-lg text-xs w-56 focus:ring-1 focus:ring-purple-300 focus:border-purple-300">
+                            </div>
+                            <button class="border border-gray-200 text-gray-500 hover:text-purple-600 hover:border-purple-300 rounded-lg px-3 py-1.5 text-xs transition flex items-center"><i class="fas fa-sliders-h mr-1 text-[10px]"></i>筛选</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-100 data-table">
+                            <thead class="bg-gray-50/50">
+                            <tr>
+                                <th class="px-5 py-2.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">标题</th>
+                                <th class="px-5 py-2.5 text-left text-[10px] font-semibold text-gray-500">分类</th>
+                                <th class="px-5 py-2.5 text-left text-[10px] font-semibold text-gray-500">作者</th>
+                                <th class="px-5 py-2.5 text-left text-[10px] font-semibold text-gray-500">更新日期</th>
+                                <th class="px-5 py-2.5 text-left text-[10px] font-semibold text-gray-500">状态</th>
+                                <th class="px-5 py-2.5 text-right text-[10px] font-semibold text-gray-500">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="px-5 py-2.5"><a href="#" class="text-xs font-medium text-gray-800 hover:text-purple-600">前端架构演进与微前端落地</a></td>
+                                <td class="px-5 py-2.5"><span class="text-[9px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">前端技术</span></td>
+                                <td class="text-xs text-gray-600">陈思琪</td>
+                                <td class="text-xs text-gray-500">2025-03-22</td>
+                                <td class="px-5 py-2.5"><span class="px-2 py-0.5 text-[9px] rounded-full bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-5 py-2.5 text-right space-x-2"><a href="#" class="text-purple-500 hover:text-purple-700 text-xs"><i class="far fa-edit mr-0.5"></i>编辑</a><a href="#" class="text-gray-400 hover:text-purple-500 text-xs"><i class="far fa-trash-alt"></i></a></td>
+                            </tr>
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="px-5 py-2.5"><a href="#" class="text-xs font-medium text-gray-800 hover:text-purple-600">数据中台建设方法论与实践精要</a></td>
+                                <td class="px-5 py-2.5"><span class="text-[9px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">数据治理</span></td>
+                                <td class="text-xs text-gray-600">刘子轩</td>
+                                <td class="text-xs text-gray-500">2025-03-20</td>
+                                <td class="px-5 py-2.5"><span class="px-2 py-0.5 text-[9px] rounded-full bg-amber-50 text-amber-700">审核中</span></td>
+                                <td class="px-5 py-2.5 text-right"><a href="#" class="text-purple-500 hover:text-purple-700 text-xs"><i class="far fa-edit"></i></a></td>
+                            </tr>
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="px-5 py-2.5"><a href="#" class="text-xs font-medium text-gray-800 hover:text-purple-600">Kubernetes 故障排查手册（实战篇）</a></td>
+                                <td class="px-5 py-2.5"><span class="text-[9px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">云原生</span></td>
+                                <td class="text-xs text-gray-600">赵一鸣</td>
+                                <td class="text-xs text-gray-500">2025-03-18</td>
+                                <td class="px-5 py-2.5"><span class="px-2 py-0.5 text-[9px] rounded-full bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-5 py-2.5 text-right"><a href="#" class="text-purple-500 hover:text-purple-700 text-xs">编辑</a></td>
+                            </tr>
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="px-5 py-2.5"><a href="#" class="text-xs font-medium text-gray-800 hover:text-purple-600">智能客服知识库构建标准流程</a></td>
+                                <td class="px-5 py-2.5"><span class="text-[9px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">AI/客服</span></td>
+                                <td class="text-xs text-gray-600">运营部</td>
+                                <td class="text-xs text-gray-500">2025-03-15</td>
+                                <td class="px-5 py-2.5"><span class="px-2 py-0.5 text-[9px] rounded-full bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-5 py-2.5 text-right"><a href="#" class="text-purple-500 hover:text-purple-700 text-xs">编辑</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- 分页器 -->
+                    <div class="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+                        <div class="text-[10px] text-gray-500">显示 1-4 条，共 56 条记录</div>
+                        <div class="flex items-center gap-1.5">
+                            <button class="pagination-btn" disabled><i class="fas fa-chevron-left text-[9px]"></i></button>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn">2</button>
+                            <button class="pagination-btn">3</button>
+                            <button class="pagination-btn">4</button>
+                            <button class="pagination-btn">5</button>
+                            <button class="pagination-btn">...</button>
+                            <button class="pagination-btn">12</button>
+                            <button class="pagination-btn"><i class="fas fa-chevron-right text-[9px]"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部智能助手卡片 -->
+                <div class="bg-gradient-to-r from-purple-50/60 via-white to-purple-50/40 rounded-xl border border-purple-100/60 p-3.5 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center"><i class="fas fa-robot text-purple-500 text-sm"></i></div>
+                        <div><p class="text-xs font-semibold text-gray-800">AI 知识图谱助手</p><p class="text-[10px] text-gray-500">自动提取关联，智能推荐分类与标签</p></div>
+                    </div>
+                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition flex items-center space-x-1"><i class="fas fa-magic text-[10px]"></i><span>智能整理</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

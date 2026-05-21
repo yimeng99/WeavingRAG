@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>文章列表 | 知库·灵枢</title>
+    <!-- Tailwind CSS v3 + Font Awesome 6 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        .card-refined {
+            transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+        }
+        .card-refined:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px -8px rgba(139, 92, 246, 0.12);
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f5;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c084fc;
+            border-radius: 10px;
+        }
+
+        input:focus, button:focus-visible, select:focus {
+            outline: none;
+            ring: 2px solid #a855f7;
+            ring-offset: 1px;
+        }
+
+        .nav-active {
+            background: linear-gradient(95deg, rgba(139, 92, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%);
+            border-right: 2px solid #8b5cf6;
+            color: #7c3aed;
+        }
+
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            height: 2rem;
+            padding: 0 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            background-color: white;
+            border: 1px solid #e9ecef;
+            color: #4b5563;
+        }
+
+        .pagination-btn:hover:not(.active):not(:disabled) {
+            background-color: #faf5ff;
+            border-color: #c084fc;
+            color: #7c3aed;
+        }
+
+        .pagination-btn.active {
+            background-color: #7c3aed;
+            border-color: #7c3aed;
+            color: white;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 500;
+        }
+
+        .right-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .right-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        .full-width-container {
+            width: 100%;
+            padding: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .full-width-container {
+                padding: 1.75rem;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .full-width-container {
+                padding: 2rem;
+            }
+        }
+
+        /* 分类标签选中样式 */
+        .category-tab {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .category-tab.active {
+            background-color: #7c3aed;
+            color: white;
+            border-color: #7c3aed;
+        }
+
+        /* 文章列表样式 */
+        .article-item {
+            transition: all 0.2s ease;
+        }
+        .article-item:hover {
+            background-color: #faf5ff;
+            border-left-color: #7c3aed;
+        }
+
+        /* 视图切换按钮 */
+        .view-btn.active {
+            background-color: #7c3aed;
+            color: white;
+            border-color: #7c3aed;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased text-gray-600 overflow-hidden">
+
+<div class="flex h-screen overflow-hidden bg-gray-50">
+
+    <!-- ========= 侧边栏：固定宽度 ========= -->
+    <aside class="w-64 bg-white border-r border-gray-100 flex flex-col shadow-sm z-20 flex-shrink-0">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center space-x-2.5">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-sm">
+                <i class="fas fa-brain text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-purple-800 to-purple-600 bg-clip-text text-transparent">知库·灵枢</h1>
+                <p class="text-[9px] text-gray-400">企业知识中枢</p>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto py-4">
+            <nav class="px-3 space-y-0.5">
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-tachometer-alt w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>仪表板</span>
+                </a>
+                <a href="#" class="nav-active flex items-center px-3 py-2 text-sm font-medium rounded-lg text-purple-700 transition-all">
+                    <i class="fas fa-book-open w-4 h-4 mr-2.5 text-purple-500 text-xs"></i>
+                    <span>知识库管理</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-tags w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>分类与标签</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-users w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-chart-pie w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>洞察分析</span>
+                </a>
+                <a href="#" class="flex items-center px-3 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-purple-50/50 hover:text-purple-600 transition-all group">
+                    <i class="fas fa-cog w-4 h-4 mr-2.5 text-gray-400 group-hover:text-purple-500 text-xs"></i>
+                    <span>系统配置</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="border-t border-gray-100 p-3">
+            <div class="bg-gray-50/80 rounded-lg p-2 flex items-center space-x-2.5 hover:bg-gray-100 transition cursor-pointer">
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">
+                    张
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-gray-700">张明远</p>
+                    <p class="text-[10px] text-gray-400 truncate">ming@zhiku.com</p>
+                </div>
+                <i class="fas fa-sign-out-alt text-gray-400 text-xs hover:text-purple-500 cursor-pointer"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========= 知识库文章列表页面 ========= -->
+    <div class="right-main">
+        <!-- 顶部栏 -->
+        <header class="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-20 px-6 py-2.5 flex justify-between items-center flex-shrink-0">
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-500 hover:text-purple-500 md:hidden">
+                    <i class="fas fa-bars text-base"></i>
+                </button>
+                <nav class="text-xs">
+                    <ol class="inline-flex items-center space-x-2">
+                        <li><a href="#" class="text-gray-500 hover:text-purple-600"><i class="fas fa-layer-group mr-1 text-purple-400 text-[10px]"></i>工作台</a></li>
+                        <li><i class="fas fa-chevron-right text-gray-300 text-[8px]"></i></li>
+                        <li><a href="#" class="text-gray-500 hover:text-purple-600">知识库管理</a></li>
+                        <li><i class="fas fa-chevron-right text-gray-300 text-[8px]"></i></li>
+                        <li><span class="text-gray-700 font-medium">全部文章</span></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="relative text-gray-500 hover:text-purple-500">
+                    <i class="far fa-bell text-base"></i>
+                    <span class="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-purple-500 rounded-full ring-1 ring-white"></span>
+                </button>
+                <button class="bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium shadow-sm transition flex items-center space-x-1.5">
+                    <i class="fas fa-upload text-xs"></i>
+                    <span>上传文章</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="right-content">
+            <div class="full-width-container">
+                <!-- 页面标题与统计 -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fas fa-newspaper text-purple-500 text-lg"></i>
+                                知识库文章
+                            </h2>
+                            <p class="text-xs text-gray-500 mt-0.5">共 128 篇文章 · 最近更新 2025年3月25日</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="view-btn active w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-purple-600 bg-purple-50">
+                                <i class="fas fa-list-ul text-xs"></i>
+                            </button>
+                            <button class="view-btn w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-purple-600">
+                                <i class="fas fa-th-large text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计卡片区 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">总文章数</p><p class="text-2xl font-bold text-gray-800 mt-1">128</p><span class="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full inline-flex items-center mt-1">+12 本周</span></div>
+                            <div class="p-2 bg-purple-50 rounded-xl"><i class="fas fa-file-alt text-purple-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">已发布</p><p class="text-2xl font-bold text-gray-800 mt-1">98</p><span class="text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full">76.6%</span></div>
+                            <div class="p-2 bg-emerald-50 rounded-xl"><i class="fas fa-check-circle text-emerald-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">审核中</p><p class="text-2xl font-bold text-gray-800 mt-1">18</p><a href="#" class="text-[10px] text-amber-600 font-medium inline-flex items-center mt-1">待审核</a></div>
+                            <div class="p-2 bg-amber-50 rounded-xl"><i class="fas fa-clock text-amber-500 text-base"></i></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 card-refined">
+                        <div class="flex justify-between items-start">
+                            <div><p class="text-gray-500 text-xs font-medium">草稿</p><p class="text-2xl font-bold text-gray-800 mt-1">12</p><span class="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">待完善</span></div>
+                            <div class="p-2 bg-gray-100 rounded-xl"><i class="fas fa-pen-fancy text-gray-500 text-base"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分类筛选 + 搜索栏 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 card-refined">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-medium text-gray-500 mr-1">分类筛选：</span>
+                            <button class="category-tab active px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-600 text-white border border-purple-600 transition">全部文章</button>
+                            <button class="category-tab px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 transition">前端技术</button>
+                            <button class="category-tab px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 transition">后端架构</button>
+                            <button class="category-tab px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 transition">云原生</button>
+                            <button class="category-tab px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200 transition">AI/机器学习</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="relative">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                                <input type="text" placeholder="搜索标题、作者或标签..." class="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs w-64 focus:ring-1 focus:ring-purple-300">
+                            </div>
+                            <button class="border border-gray-200 text-gray-600 hover:text-purple-600 hover:border-purple-300 rounded-lg px-3 py-1.5 text-xs transition flex items-center gap-1">
+                                <i class="fas fa-filter text-[10px]"></i> 筛选
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 文章列表 - 表格风格展示 -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden card-refined">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-100">
+                            <thead class="bg-gray-50/60">
+                            <tr>
+                                <th class="px-6 py-3 text-left">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5">
+                                        <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">选择</span>
+                                    </label>
+                                </th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">标题</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">分类</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">作者</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">阅读量</th>
+                                <th class="px-6 py-3 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-wider">更新日期</th>
+                                <th class="px-6 py-3 text-right text-[10px] font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                            <!-- 文章 1 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()">
+                                    <input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5">
+                                </td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div>
+                                        <a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">微服务架构设计最佳实践（2025企业版）</a>
+                                        <p class="text-[10px] text-gray-400 mt-0.5 line-clamp-1">深度解析微服务架构设计原则、服务拆分策略、通信协议选型</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">后端架构</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">陈思琪</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2.8k</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-22</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-edit"></i></button>
+                                    <button class="text-gray-400 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-ellipsis-v"></i></button>
+                                </td>
+                            </tr>
+                            <!-- 文章 2 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"></td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div><a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">React 19 + 服务端组件架构实践指南</a><p class="text-[10px] text-gray-400 mt-0.5">React 19新特性、Server Components使用场景、性能优化</p></div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">前端技术</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">李明轩</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2.1k</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-20</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-edit"></i></button>
+                                    <button class="text-gray-400 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                            <!-- 文章 3 - 审核中 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"></td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div><a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">数据中台建设方法论与实践精要</a><p class="text-[10px] text-gray-400 mt-0.5">数据治理、数据服务化、数据资产管理与运营</p></div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">数据治理</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">刘子轩</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-amber-50 text-amber-700">审核中</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">1.5k</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-18</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-check-circle"></i></button>
+                                    <button class="text-gray-400 hover:text-red-500 text-xs"><i class="fas fa-times-circle"></i></button>
+                                </td>
+                            </tr>
+                            <!-- 文章 4 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"></td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div><a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">Kubernetes 故障排查手册（实战篇）</a><p class="text-[10px] text-gray-400 mt-0.5">Pod启动失败、网络问题、存储故障等实战案例</p></div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">云原生</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">赵一鸣</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">1.2k</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-15</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-edit"></i></button>
+                                    <button class="text-gray-400 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                            <!-- 文章 5 - 草稿 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"></td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div><a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">智能客服知识库构建标准流程</a><p class="text-[10px] text-gray-400 mt-0.5">FAQ管理、知识图谱应用、对话机器人训练</p></div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">AI/机器学习</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">王芳</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-gray-100 text-gray-600">草稿</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">980</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-14</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-edit"></i></button>
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-paper-plane"></i></button>
+                                </td>
+                            </tr>
+                            <!-- 文章 6 -->
+                            <tr class="article-item hover:bg-purple-50/20 transition cursor-pointer">
+                                <td class="px-6 py-3.5" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"></td>
+                                <td class="px-6 py-3.5" onclick="window.location.href='#'">
+                                    <div><a href="#" class="text-sm font-medium text-gray-800 hover:text-purple-600 transition">AI Agent 在企业知识库中的落地场景</a><p class="text-[10px] text-gray-400 mt-0.5">智能检索、自动摘要、知识推荐与问答系统</p></div>
+                                </td>
+                                <td class="px-6 py-3.5"><span class="text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded-full">AI/机器学习</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-600">周逸飞</td>
+                                <td class="px-6 py-3.5"><span class="status-badge bg-green-50 text-green-700">已发布</span></td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">3.2k</td>
+                                <td class="px-6 py-3.5 text-xs text-gray-500">2025-03-25</td>
+                                <td class="px-6 py-3.5 text-right space-x-2">
+                                    <button class="text-gray-400 hover:text-purple-500 text-xs"><i class="fas fa-edit"></i></button>
+                                    <button class="text-gray-400 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 批量操作栏 + 分页器 -->
+                    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] text-gray-500">已选择 <span class="font-semibold text-gray-700">0</span> 项</span>
+                            <div class="h-4 w-px bg-gray-200"></div>
+                            <button class="text-xs text-gray-500 hover:text-purple-600 transition flex items-center gap-1 disabled:opacity-50" disabled>
+                                <i class="fas fa-trash-alt text-[10px]"></i> 批量删除
+                            </button>
+                            <button class="text-xs text-gray-500 hover:text-purple-600 transition flex items-center gap-1 disabled:opacity-50" disabled>
+                                <i class="fas fa-tags text-[10px]"></i> 批量分类
+                            </button>
+                            <button class="text-xs text-gray-500 hover:text-purple-600 transition flex items-center gap-1 disabled:opacity-50" disabled>
+                                <i class="fas fa-check-circle text-[10px]"></i> 批量发布
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <button class="pagination-btn" disabled><i class="fas fa-chevron-left text-[9px]"></i></button>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn">2</button>
+                            <button class="pagination-btn">3</button>
+                            <button class="pagination-btn">4</button>
+                            <button class="pagination-btn">5</button>
+                            <button class="pagination-btn">...</button>
+                            <button class="pagination-btn">22</button>
+                            <button class="pagination-btn"><i class="fas fa-chevron-right text-[9px]"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 上传提示卡片 -->
+                <div class="mt-6 bg-gradient-to-r from-purple-50/60 via-white to-purple-50/40 rounded-xl border border-purple-100/60 p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-purple-500 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-gray-800">批量上传文章</p>
+                            <p class="text-[10px] text-gray-500">支持 Markdown、Word 格式，一键导入知识库</p>
+                        </div>
+                    </div>
+                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg text-xs font-medium shadow-sm transition">开始上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 分类标签切换交互
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.category-tab').forEach(t => {
+                t.classList.remove('active', 'bg-purple-600', 'text-white', 'border-purple-600');
+                t.classList.add('text-gray-600', 'border-gray-200', 'bg-white');
+            });
+            this.classList.remove('text-gray-600', 'border-gray-200', 'bg-white');
+            this.classList.add('active', 'bg-purple-600', 'text-white', 'border-purple-600');
+        });
+    });
+
+    // 视图切换（演示）
+    const viewBtns = document.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            viewBtns.forEach(b => {
+                b.classList.remove('active', 'bg-purple-50', 'text-purple-600');
+                b.classList.add('text-gray-500');
+            });
+            this.classList.add('active', 'bg-purple-50', 'text-purple-600');
+            this.classList.remove('text-gray-500');
+        });
+    });
+
+    // 全选交互
+    const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+    const rowCheckboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+    const selectedCountSpan = document.querySelector('.flex.items-center.gap-3 .font-semibold');
+    const batchButtons = document.querySelectorAll('.flex.items-center.gap-3 button');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            rowCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+            updateSelectedCount();
+        });
+    }
+
+    rowCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+        if (selectedCountSpan) selectedCountSpan.innerText = checked;
+        batchButtons.forEach(btn => {
+            if (checked === 0) btn.disabled = true;
+            else btn.disabled = false;
+        });
+    }
+
+    updateSelectedCount();
+</script>
+</body>
+</html>

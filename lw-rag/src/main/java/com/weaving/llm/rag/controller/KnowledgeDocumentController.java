@@ -222,6 +222,30 @@ public class KnowledgeDocumentController {
         }
     }
 
+    @PostMapping("/embedAsync")
+    @Operation(summary = "异步批量向量化", description = "异步批量处理文档向量化")
+    public R<Map<String, Object>> embedDocumentsAsync(@RequestBody List<String> docIds) {
+        log.info("接收到异步批量文档向量化请求，共 {} 个文档", docIds.size());
+        List<KnowledgeDocument> documents = new ArrayList<>();
+        for (String docId : docIds) {
+            KnowledgeDocument doc = knowledgeDocumentService.getById(docId);
+            if (doc != null) {
+                documents.add(doc);
+            } else {
+                log.warn("文档 {} 不存在，跳过", docId);
+            }
+        }
+        try {
+            Map<String, Object> result = vectorStoreService.embedDocuments(documents);
+            result.put("totalDocs", documents.size());
+            result.put("status", "processing");
+            result.put("taskId", String.valueOf(System.currentTimeMillis()));
+            return R.ok(result);
+        } catch (Exception e) {
+            return R.fail("异步处理失败：" + e.getMessage());
+        }
+    }
+
 
 
     /**

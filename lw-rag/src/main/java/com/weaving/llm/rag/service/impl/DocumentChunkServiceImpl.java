@@ -25,9 +25,18 @@ public class DocumentChunkServiceImpl extends ServiceImpl<DocumentChunkMapper, D
     @Override
     public List<DocumentChunk> getChunksByDocIdPaged(String docId, int current, int size) {
         LambdaQueryWrapper<DocumentChunk> wrapper = new LambdaQueryWrapper<>();
-//        wrapper.eq(DocumentChunk::getDocId, docId)
-//               .orderByAsc(DocumentChunk::getChunkIndex)
-//               .page(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(current, size));
+        wrapper.eq(DocumentChunk::getDocId, docId)
+               .orderByAsc(DocumentChunk::getChunkIndex);
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<DocumentChunk> page =
+            new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(current, size);
+        return page(page, wrapper).getRecords();
+    }
+
+    @Override
+    public List<DocumentChunk> pageListByDocId(String docId) {
+        LambdaQueryWrapper<DocumentChunk> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DocumentChunk::getDocId, docId)
+               .orderByAsc(DocumentChunk::getChunkIndex);
         return list(wrapper);
     }
 

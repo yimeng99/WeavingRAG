@@ -11,6 +11,8 @@ public interface DocumentChunkService extends IService<DocumentChunk> {
 
     List<DocumentChunk> getChunksByDocIdPaged(String docId, int current, int size);
 
+    List<DocumentChunk> pageListByDocId(String docId);
+
     int getChunkCountByDocId(String docId);
 
     void deleteChunksByDocId(String docId);

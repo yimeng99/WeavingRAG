@@ -33,11 +33,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-/**
- * @Author: 依梦
- * @Date: 2025/10/27
- * @Description: 知识库文档管理控制器
- */
 @Slf4j
 @Tag(name = "知识库文档管理", description = "知识库文档、切片、标签、检索等管理接口")
 @RestController
@@ -104,7 +99,8 @@ public class KnowledgeDocumentController {
         List<DocumentCreateDto.FileInfoDTO> fileList = dto.getUploadFileList();
         // 遍历每个文件，每个文件插入一条记录
         for (DocumentCreateDto.FileInfoDTO fileInfo : fileList) {
-            File file = new File(fileInfo.getFilePath());
+            String fullPath = localFileService.getFullPath(fileInfo.getFilePath());
+            File file = new File(fullPath);
             ConversionResult conversionResult = documentConversionService.convert(file);
             if (!conversionResult.isSuccess()) {
                 log.error("文件转换失败：{}，跳过此文件", fileInfo.getFilePath());
@@ -157,8 +153,6 @@ public class KnowledgeDocumentController {
     public R<KnowledgeDocument> getDocument(@PathVariable String docId) {
         return R.ok(knowledgeDocumentService.getById(docId));
     }
-
-
 
     @PutMapping
     @Operation(summary = "更新文档", description = "更新文档信息")
@@ -915,6 +909,14 @@ public class KnowledgeDocumentController {
     @Operation(summary = "获取文档切片", description = "获取文档的所有切片")
     public R<List<DocumentChunk>> getChunks(@PathVariable String docId) {
         return R.ok(documentChunkService.getChunksByDocId(docId));
+    }
+
+    @GetMapping("/documents/{docId}/chunks/page")
+    @Operation(summary = "获取文档切片列表", description = "通过文档 ID 获取切片列表（分页）")
+    public R<PageDataResult> getChunksPaged(@PathVariable String docId) {
+        PageUtils.startPage();
+        List<DocumentChunk> chunks = documentChunkService.pageListByDocId(docId);
+        return R.ok(PageUtils.generatePageDataResult(chunks));
     }
 
     @PostMapping("/documents/{docId}/chunk")

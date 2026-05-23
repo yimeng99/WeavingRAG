@@ -67,4 +67,16 @@ public class LocalFileService {
             log.error("文件删除失败: {}", filePath, e);
         }
     }
+
+    public String getFullPath(String relativePath) {
+        if (relativePath == null || relativePath.isEmpty()) {
+            return null;
+        }
+        Path fullPath = fileStorageLocation.resolve(relativePath).normalize();
+        return fullPath.toString();
+    }
+
+    public String getUploadPath() {
+        return fileStorageLocation.toString();
+    }
 }

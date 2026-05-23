@@ -54,4 +54,10 @@ public class DocumentChunkServiceImpl extends ServiceImpl<DocumentChunkMapper, D
         remove(wrapper);
         log.info("删除文档切片: docId={}", docId);
     }
+
+    @Override
+    public void deleteChunksByChunkId(String chunkId) {
+        removeById(chunkId);
+        log.info("删除切片: chunkId={}", chunkId);
+    }
 }

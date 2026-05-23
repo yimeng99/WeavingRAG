@@ -230,7 +230,7 @@ watch(() => route.path, (newPath) => {
   <div class="knowledge-card-page">
     <div class="page-header">
       <h2 class="page-title">
-        <IconSvg name="book-open" :size="20" color="#7c3aed" />
+        <IconSvg name="book-open" :size="20" color="#FF8200" />
         知识库管理
       </h2>
       <p class="page-desc">管理企业所有知识文档，支持编辑、归档、发布与权限设置</p>
@@ -243,8 +243,8 @@ watch(() => route.path, (newPath) => {
           <p class="stat-value">{{ stats.totalDocs.toLocaleString() }}</p>
           <span class="stat-growth growth-positive">{{ stats.totalGrowth }}</span>
         </div>
-        <div class="stat-icon stat-icon-purple">
-          <IconSvg name="file-text" :size="18" color="#7c3aed" />
+        <div class="stat-icon stat-icon-blue">
+          <IconSvg name="file-text" :size="18" color="#FF8200" />
         </div>
       </div>
       
@@ -300,8 +300,8 @@ watch(() => route.path, (newPath) => {
           </button>
         </div>
         <div class="filter-right">
-          <button class="btn-purple-light" @click="createNew">
-            <IconSvg name="plus" :size="12" color="#7c3aed" />
+          <button class="btn-blue-light" @click="createNew">
+            <IconSvg name="plus" :size="12" color="#3253ff" />
             新建知识库
           </button>
         </div>
@@ -353,12 +353,12 @@ watch(() => route.path, (newPath) => {
           
           <div class="card-footer">
             <div class="footer-actions">
-              <button class="action-btn" @click="editItem(doc, $event)" title="编辑">
-                <IconSvg name="edit" :size="14" color="#9ca3af" />
-              </button>
-              <button class="action-btn" @click="deleteItem(doc, $event)" title="删除">
-                <IconSvg name="trash" :size="14" color="#9ca3af" />
-              </button>
+              <a-button type="text" size="small" @click="editItem(doc, $event)" title="编辑" class="edit-btn">
+                <IconSvg name="edit" :size="14" />
+              </a-button>
+              <a-button type="text" size="small" danger @click="deleteItem(doc, $event)" title="删除" class="delete-btn">
+                <IconSvg name="trash" :size="14" />
+              </a-button>
             </div>
           </div>
         </div>
@@ -420,61 +420,56 @@ watch(() => route.path, (newPath) => {
 
 <style lang="scss" scoped>
 
+// Qianwen-inspired color palette
+$feishu-blue: #FF8200;
+$feishu-blue-light: #FF9A2E;
+$feishu-blue-bg: #FFF4E6;
+$feishu-border: #FFE8C8;
+$feishu-gray: #666666;
+$feishu-dark: #1f2329;
 
 .knowledge-card-page {
   width: 100%;
+  background: #f7f8fa;
+  min-height: 100%;
+  padding: 24px;
 }
 
 .page-header {
-  margin-bottom: $spacing-lg;
+  margin-bottom: 20px;
 }
 
 .page-title {
-  font-size: $font-size-lg;
-  font-weight: 700;
-  color: $gray-800;
+  font-size: 20px;
+  font-weight: 600;
+  color: $feishu-dark;
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
-  margin: 0 0 $spacing-xs 0;
+  gap: 10px;
+  margin: 0 0 4px 0;
 }
 
 .page-desc {
-  font-size: $font-size-xs;
-  color: $gray-500;
+  font-size: 13px;
+  color: $feishu-gray;
   margin: 0;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: $spacing-md;
-  margin-bottom: $spacing-lg;
-  
-  @media (min-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (min-width: 1024px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .stat-card {
   background: #fff;
-  border-radius: $radius-xl;
-  padding: $spacing-md;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid $gray-100;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid $feishu-border;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -12px rgba(139, 92, 246, 0.15);
-  }
+  align-items: center;
 }
 
 .stat-content {
@@ -482,78 +477,78 @@ watch(() => route.path, (newPath) => {
 }
 
 .stat-label {
-  font-size: $font-size-xs;
-  font-weight: 500;
-  color: $gray-500;
-  margin: 0 0 $spacing-xs 0;
+  font-size: 13px;
+  color: $feishu-gray;
+  margin: 0 0 4px 0;
 }
 
 .stat-value {
   font-size: 24px;
-  font-weight: 700;
-  color: $gray-800;
-  margin: 0 0 $spacing-xs 0;
+  font-weight: 600;
+  color: $feishu-dark;
+  margin: 0;
 }
 
 .stat-growth {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 9999px;
-  
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+
   &.growth-positive {
-    color: #047857;
-    background: #ecfdf5;
+    color: #00a850;
   }
-  
+
   &.growth-success {
-    color: #16a34a;
-    background: #f0fdf4;
+    color: $feishu-blue;
   }
-  
+
   &.growth-gray {
-    color: $gray-500;
-    background: $gray-100;
+    color: $feishu-gray;
   }
 }
 
 .stat-link {
   display: inline-flex;
-  font-size: 10px;
-  font-weight: 600;
-  color: #d97706;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fa8c16;
   text-decoration: none;
 }
 
 .stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: $radius-xl;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
-  &.stat-icon-purple { background: $purple-50; }
-  &.stat-icon-green { background: #f0fdf4; }
-  &.stat-icon-amber { background: #fffbeb; }
-  &.stat-icon-gray { background: $gray-100; }
+
+  &.stat-icon-blue {
+    background: $feishu-blue-bg;
+  }
+
+  &.stat-icon-green {
+    background: #e6f7ed;
+  }
+
+  &.stat-icon-amber {
+    background: #fff7e6;
+  }
+
+  &.stat-icon-gray {
+    background: #f5f5f5;
+  }
 }
 
 .filter-card {
   background: #fff;
-  border-radius: $radius-xl;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid $gray-100;
-  padding: $spacing-md;
-  margin-bottom: $spacing-lg;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
+  border-radius: 8px;
+  border: 1px solid $feishu-border;
+  padding: 16px;
+  margin-bottom: 20px;
 }
 
 .filter-content {
@@ -561,37 +556,38 @@ watch(() => route.path, (newPath) => {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
 .filter-left {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 12px;
 }
 
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  
+
   svg {
     position: absolute;
     left: 12px;
+    color: $feishu-gray;
   }
-  
+
   input {
-    width: 280px;
+    width: 260px;
     padding: 8px 12px 8px 36px;
-    border: 1px solid $gray-200;
-    border-radius: $radius-md;
-    font-size: $font-size-xs;
+    border: 1px solid $feishu-border;
+    border-radius: 6px;
+    font-size: 13px;
     outline: none;
     transition: all 0.2s ease;
-    
+
     &:focus {
-      border-color: $purple-300;
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+      border-color: $feishu-blue;
+      box-shadow: 0 0 0 2px rgba(50, 83, 255, 0.1);
     }
   }
 }
@@ -599,43 +595,44 @@ watch(() => route.path, (newPath) => {
 .btn-primary-sm {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
+  gap: 6px;
   padding: 8px 16px;
-  border-radius: $radius-md;
-  font-size: $font-size-xs;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
-  background: $purple-600;
+  background: $feishu-blue;
   border: none;
   color: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    background: $purple-700;
+    background: $feishu-blue-light;
   }
 }
 
 .filter-right {
   display: flex;
-  gap: $spacing-sm;
+  gap: 12px;
   align-items: center;
 }
 
-.btn-purple-light {
+.btn-blue-light {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
-  padding: 6px 12px;
-  border-radius: $radius-md;
-  font-size: $font-size-xs;
-  background: $purple-50;
-  border: 1px solid $purple-100;
-  color: $purple-600;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: $feishu-blue-bg;
+  border: none;
+  color: $feishu-blue;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    background: $purple-100;
+    background: #e0e8ff;
   }
 }
 
@@ -643,15 +640,15 @@ watch(() => route.path, (newPath) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-md;
+  margin-bottom: 16px;
   flex-wrap: wrap;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
 .batch-left {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
 .checkbox-label {
@@ -659,13 +656,13 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  font-size: $font-size-xs;
-  color: $gray-500;
-  
+  font-size: 13px;
+  color: $feishu-gray;
+
   input {
     width: 14px;
     height: 14px;
-    accent-color: $purple-600;
+    accent-color: $feishu-blue;
   }
 }
 
@@ -674,19 +671,19 @@ watch(() => route.path, (newPath) => {
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  font-size: $font-size-xs;
-  color: $gray-500;
+  font-size: 13px;
+  color: $feishu-gray;
   background: none;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  border-radius: $radius-sm;
-  
+  border-radius: 4px;
+
   &:hover:not(:disabled) {
-    color: $purple-600;
-    background: $purple-50;
+    color: $feishu-blue;
+    background: $feishu-blue-bg;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -696,75 +693,69 @@ watch(() => route.path, (newPath) => {
 .batch-right {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 8px;
 }
 
 .sort-label {
-  font-size: 10px;
-  color: $gray-400;
+  font-size: 12px;
+  color: $feishu-gray;
 }
 
 select {
-  padding: 4px 8px;
-  border: 1px solid $gray-200;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
+  padding: 6px 10px;
+  border: 1px solid $feishu-border;
+  border-radius: 6px;
+  font-size: 13px;
   background: #fff;
-  color: $gray-700;
+  color: $feishu-dark;
   outline: none;
 }
 
 .knowledge-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: $spacing-lg;
-  margin-bottom: $spacing-lg;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .knowledge-card {
   background: #fff;
-  border-radius: $radius-xl;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid $gray-100;
+  border-radius: 8px;
+  border: 1px solid $feishu-border;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -12px rgba(139, 92, 246, 0.15);
-    border-color: $purple-200;
+    border-color: $feishu-blue;
+    box-shadow: 0 2px 8px rgba(255, 130, 0, 0.08);
   }
-  
+
   &.card-recommended {
-    background: linear-gradient(135deg, rgba(249, 250, 251, 0.5), rgba(255, 255, 255, 0.8));
-    border: 1px solid $purple-100;
+    background: linear-gradient(135deg, $feishu-blue-bg, #fff);
+    border-color: #FFB866;
   }
 }
 
 .card-body {
-  padding: $spacing-lg;
+  padding: 16px;
 }
 
 .card-header {
   display: flex;
-  gap: $spacing-md;
-  margin-bottom: $spacing-md;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .card-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: $radius-xl;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .card-header-content {
@@ -776,72 +767,44 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: $spacing-sm;
 }
 
 .card-title {
-  font-size: $font-size-base;
-  font-weight: 700;
-  color: $gray-800;
+  font-size: 15px;
+  font-weight: 500;
+  color: $feishu-dark;
   margin: 0;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.2s ease;
-  
+
   &:hover {
-    color: $purple-600;
+    color: $feishu-blue;
   }
 }
 
 .more-btn {
   background: none;
   border: none;
-  padding: 6px;
-  color: $gray-400;
+  padding: 4px;
+  color: $feishu-gray;
   cursor: pointer;
-  border-radius: $radius-sm;
+  border-radius: 4px;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    background: $purple-50;
-    color: $purple-500;
+    background: $feishu-blue-bg;
+    color: $feishu-blue;
   }
 }
 
-.card-header-bottom {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 10px;
-  border-radius: 9999px;
-  font-size: 10px;
-  font-weight: 500;
-  
-  &.bg-green-50 { background: #f0fdf4; color: #16a34a; }
-  &.bg-amber-50 { background: #fffbeb; color: #d97706; }
-  &.bg-gray-100 { background: #f3f4f6; color: #6b7280; }
-  &.bg-purple-50 { background: #faf5ff; color: #7c3aed; }
-}
-
-.card-checkbox {
-  width: 14px;
-  height: 14px;
-  accent-color: $purple-600;
-}
-
 .card-summary {
-  font-size: $font-size-xs;
-  color: $gray-500;
-  margin: 0 0 $spacing-md 0;
-  line-height: 1.6;
+  font-size: 13px;
+  color: $feishu-gray;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -851,18 +814,18 @@ select {
 .card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-md;
-  margin-bottom: $spacing-md;
-  padding-bottom: $spacing-md;
-  border-bottom: 1px solid $gray-100;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $feishu-border;
 }
 
 .meta-item {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
-  color: $gray-400;
+  font-size: 12px;
+  color: $feishu-gray;
 }
 
 .card-footer {
@@ -873,21 +836,35 @@ select {
 
 .footer-actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
 }
 
-.action-btn {
-  background: none;
-  border: none;
-  padding: 6px;
-  color: $gray-400;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: $radius-sm;
-  
+:deep(.edit-btn),
+:deep(.delete-btn) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+:deep(.edit-btn) {
+  color: $feishu-gray;
+
   &:hover {
-    background: $purple-50;
-    color: $purple-500;
+    color: $feishu-blue;
+    background: $feishu-blue-bg;
+  }
+}
+
+:deep(.delete-btn) {
+  color: $feishu-gray;
+
+  &:hover {
+    color: #ff4d4f;
+    background: #fff2f0;
   }
 }
 
@@ -896,79 +873,81 @@ select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px;
-  color: $gray-400;
-  
+  padding: 60px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid $feishu-border;
+
   p {
-    margin: $spacing-md 0;
-    font-size: $font-size-sm;
+    margin: 12px 0;
+    font-size: 14px;
+    color: $feishu-gray;
   }
 }
 
 .btn-primary {
   display: flex;
   align-items: center;
-  gap: $spacing-xs;
-  padding: 8px 16px;
-  background: $purple-600;
+  gap: 6px;
+  padding: 8px 20px;
+  background: $feishu-blue;
   color: #fff;
   border: none;
-  border-radius: $radius-md;
-  font-size: $font-size-xs;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
-    background: $purple-700;
+    background: $feishu-blue-light;
   }
 }
 
 .pagination-card {
   background: #fff;
-  border-radius: $radius-xl;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid $gray-100;
-  padding: $spacing-md;
+  border-radius: 8px;
+  border: 1px solid $feishu-border;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
 .pagination-info {
-  font-size: $font-size-xs;
-  color: $gray-500;
+  font-size: 13px;
+  color: $feishu-gray;
 }
 
 .pagination-controls {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: 12px;
 }
 
 .page-size-selector {
   display: flex;
   align-items: center;
   gap: 6px;
-  
+
   .page-size-label {
-    font-size: $font-size-xs;
-    color: $gray-500;
+    font-size: 13px;
+    color: $feishu-gray;
   }
-  
+
   select {
-    padding: 4px 8px;
-    border: 1px solid $gray-200;
-    border-radius: $radius-sm;
-    font-size: $font-size-xs;
-    color: $gray-700;
+    padding: 6px 10px;
+    border: 1px solid $feishu-border;
+    border-radius: 6px;
+    font-size: 13px;
+    color: $feishu-dark;
     background: #fff;
     cursor: pointer;
-    
+
     &:focus {
-      border-color: $purple-400;
+      border-color: $feishu-blue;
       outline: none;
     }
   }
@@ -987,27 +966,26 @@ select {
   min-width: 32px;
   height: 32px;
   padding: 0 8px;
-  border-radius: $radius-sm;
-  font-size: $font-size-xs;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 500;
   background: #fff;
-  border: 1px solid $gray-200;
-  color: $gray-600;
+  border: 1px solid $feishu-border;
+  color: $feishu-dark;
   cursor: pointer;
   transition: all 0.15s ease;
-  
+
   &:hover:not(.active):not(:disabled) {
-    background: $purple-50;
-    border-color: $purple-300;
-    color: $purple-700;
+    border-color: $feishu-blue;
+    color: $feishu-blue;
   }
-  
+
   &.active {
-    background: $purple-600;
-    border-color: $purple-600;
+    background: $feishu-blue;
+    border-color: $feishu-blue;
     color: #fff;
   }
-  
+
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -1015,7 +993,17 @@ select {
 }
 
 .page-ellipsis {
-  padding: 0 4px;
-  color: $gray-400;
+  padding: 0 8px;
+  color: $feishu-gray;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .knowledge-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

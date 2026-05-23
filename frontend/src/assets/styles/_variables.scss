@@ -1,13 +1,25 @@
-// 全局变量
-$primary-color: #7c3aed;
-$primary-hover: #6b21a8;
-$primary-light: #ede9fe;
-$primary-lighter: #f5f3ff;
+// 全局变量 - 通义千问橙色主题
+$primary-color: #FF8200;
+$primary-hover: #E67600;
+$primary-light: #FFF4E6;
+$primary-lighter: #FFFAF5;
 $success-color: #16a34a;
 $warning-color: #d97706;
 $error-color: #dc2626;
 
-// 紫色主题色系
+// 橙色色系
+$orange-50: #FFFAF5;
+$orange-100: #FFF4E6;
+$orange-200: #FFE8C8;
+$orange-300: #FFD4A3;
+$orange-400: #FFB866;
+$orange-500: #FF9A2E;
+$orange-600: #FF8200;
+$orange-700: #E67600;
+$orange-800: #CC6600;
+$orange-900: #994D00;
+
+// 紫色色系（保留用于其他场景）
 $purple-50: #faf5ff;
 $purple-100: #f3e8ff;
 $purple-200: #e9d5ff;

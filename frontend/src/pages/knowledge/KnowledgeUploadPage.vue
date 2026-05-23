@@ -166,7 +166,7 @@ const startUpload = async () => {
           enableEmbedding: true
         }
         
-        const saveRes = await fetch('/api/v0/knowledge/document/save', {
+        const saveRes = await fetch('/api/v0/knowledge/documents/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(saveData)
@@ -248,7 +248,7 @@ onMounted(() => {
         </button>
         <div class="breadcrumb">
           <span class="breadcrumb-item">
-            <IconSvg name="layers" :size="10" color="#a855f7" />
+            <IconSvg name="layers" :size="10" color="#FF8200" />
             工作台
           </span>
           <IconSvg name="chevron-right" :size="8" color="#d1d5db" />
@@ -262,7 +262,7 @@ onMounted(() => {
     <div class="page-content">
       <div class="page-title-section">
         <h2 class="page-title">
-          <IconSvg name="upload" :size="20" color="#7c3aed" />
+          <IconSvg name="upload" :size="20" color="#FF8200" />
           上传文章
         </h2>
         <p class="page-desc">支持 Markdown (.md)、Word (.docx)、文本 (.txt)、PDF (.pdf) 格式，支持智能切片与向量索引配置</p>
@@ -279,7 +279,7 @@ onMounted(() => {
         <div class="form-card" v-show="currentStep === 1">
           <div class="card-header">
             <h3 class="card-title">
-              <IconSvg name="file-upload" :size="16" color="#7c3aed" />
+              <IconSvg name="file-upload" :size="16" color="#FF8200" />
               选择文件
             </h3>
             <p class="card-desc">支持 .md, .docx, .txt, .pdf 格式，单个文件不超过 50MB</p>
@@ -317,7 +317,7 @@ onMounted(() => {
                   class="file-item"
                 >
                   <div class="file-details">
-                    <IconSvg name="file" :size="16" color="#7c3aed" />
+                    <IconSvg name="file" :size="16" color="#FF8200" />
                     <span class="file-name">{{ file.name }}</span>
                     <span class="file-size">{{ formatFileSize(file.size) }}</span>
                   </div>
@@ -334,7 +334,7 @@ onMounted(() => {
         <div class="form-card" v-show="currentStep === 2">
           <div class="card-header">
             <h3 class="card-title">
-              <IconSvg name="scissors" :size="16" color="#7c3aed" />
+              <IconSvg name="scissors" :size="16" color="#FF8200" />
               切片配置
             </h3>
             <p class="card-desc">将文档分割为适合向量检索的文本片段</p>
@@ -416,7 +416,7 @@ onMounted(() => {
         <div class="form-card" v-show="currentStep === 3">
           <div class="card-header">
             <h3 class="card-title">
-              <IconSvg name="upload" :size="16" color="#7c3aed" />
+              <IconSvg name="upload" :size="16" color="#FF8200" />
               上传处理
             </h3>
           </div>
@@ -576,8 +576,6 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: $spacing-lg;
-  max-width: 1000px;
-  margin: 0 auto;
   width: 100%;
 }
 

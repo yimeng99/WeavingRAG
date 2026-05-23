@@ -55,7 +55,7 @@ const handleNewKnowledge = () => {
               class="breadcrumb-link"
             >
               <template v-if="index === 0">
-                <IconSvg name="book-open" :size="10" color="#a855f7" class="breadcrumb-icon" />
+                <IconSvg name="book-open" :size="10" color="#FF8200" class="breadcrumb-icon" />
               </template>
               {{ crumb.name }}
             </a>
@@ -142,7 +142,7 @@ const handleNewKnowledge = () => {
 }
 
 .breadcrumb-link:hover {
-  color: #7c3aed;
+  color: #FF8200;
 }
 
 .breadcrumb-icon {
@@ -174,7 +174,7 @@ const handleNewKnowledge = () => {
 }
 
 .icon-btn:hover {
-  color: #7c3aed;
+  color: #FF8200;
 }
 
 .notification-dot {
@@ -183,13 +183,13 @@ const handleNewKnowledge = () => {
   right: 6px;
   width: 6px;
   height: 6px;
-  background: #7c3aed;
+  background: #FF8200;
   border-radius: 50%;
   border: 2px solid #ffffff;
 }
 
 .primary-btn {
-  background: #7c3aed;
+  background: #FF8200;
   color: #ffffff;
   border: none;
   padding: 6px 14px;
@@ -205,8 +205,8 @@ const handleNewKnowledge = () => {
 }
 
 .primary-btn:hover {
-  background: #6b21a8;
+  background: #E67600;
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 4px 8px rgba(255, 130, 0, 0.15);
 }
 </style>

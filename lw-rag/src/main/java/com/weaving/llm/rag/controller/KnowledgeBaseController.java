@@ -2,6 +2,7 @@ package com.weaving.llm.rag.controller;
 
 import com.weaving.llm.common.domain.KnowledgeBase;
 import com.weaving.llm.common.domain.R;
+import com.weaving.llm.common.pages.PageUtils;
 import com.weaving.llm.common.utils.CurrentUserUtil;
 import com.weaving.llm.rag.domain.dto.KnowledgeBaseCreateRequest;
 import com.weaving.llm.rag.domain.dto.KnowledgeBaseUpdateRequest;
@@ -32,6 +33,7 @@ public class KnowledgeBaseController {
     @GetMapping("/bases")
     @Operation(summary = "获取知识库列表", description = "查询所有知识库或指定用户的知识库列表")
     public R<List<KnowledgeBase>> getKnowledgeBases() {
+        PageUtils.startPage();
         List<KnowledgeBase> bases = knowledgeBaseService.list();
         return R.ok(bases);
     }

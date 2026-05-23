@@ -81,7 +81,7 @@ const loadDocuments = async () => {
       }
     }
     
-    const res = await fetch(`/api/v0/knowledge/documents?${params}`)
+    const res = await fetch(`/api/v0/knowledge/documents/page?${params}`)
     const data = await res.json()
     
     if (data.code === 200 && data.data) {

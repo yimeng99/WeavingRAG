@@ -24,12 +24,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c084fc;
+  background: #FFB866;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a855f7;
+  background: #FF8200;
 }
 
 /* 表格行 hover */
@@ -59,14 +59,14 @@
 }
 
 .pagination-btn:hover:not(.active):not(:disabled) {
-  background-color: #faf5ff;
-  border-color: #c084fc;
-  color: #7c3aed;
+  background-color: #FFF4E6;
+  border-color: #FF8200;
+  color: #FF8200;
 }
 
 .pagination-btn.active {
-  background-color: #7c3aed;
-  border-color: #7c3aed;
+  background-color: #FF8200;
+  border-color: #FF8200;
   color: white;
 }
 

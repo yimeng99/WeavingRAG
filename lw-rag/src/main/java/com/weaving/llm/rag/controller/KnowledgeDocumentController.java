@@ -2,11 +2,13 @@ package com.weaving.llm.rag.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weaving.llm.common.domain.*;
+import com.weaving.llm.common.pages.PageUtils;
 import com.weaving.llm.common.service.LocalFileService;
 import com.weaving.llm.common.service.RagChatAIStreamService;
 import com.weaving.llm.common.service.WeavingCharService;
 import com.weaving.llm.common.utils.converter.ConversionResult;
 import com.weaving.llm.common.utils.converter.DocumentConversionService;
+import com.weaving.llm.common.utils.JsonUtils;
 import com.weaving.llm.rag.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Tag(name = "知识库文档管理", description = "知识库文档、切片、标签、检索等管理接口")
 @RestController
-@RequestMapping("/v0/knowledge/document")
+@RequestMapping("/v0/knowledge/documents")
 public class KnowledgeDocumentController {
 
     @Autowired
@@ -83,45 +85,10 @@ public class KnowledgeDocumentController {
      * 获取文档列表 (分页)
      */
     @GetMapping("/page")
-    @Operation(summary = "获取文档列表", description = "分页查询文档列表")
-    public R<Page<KnowledgeDocument>> getDocuments(
-            @Parameter(description = "页码", example = "1") @RequestParam(defaultValue = "1") Integer current,
-            @Parameter(description = "每页数量", example = "10") @RequestParam(defaultValue = "10") Integer size,
-            @Parameter(description = "知识库 ID（可选）") @RequestParam(required = false) String knowledgeBaseId,
-            @Parameter(description = "用户 ID（可选）") @RequestParam(required = false) Long userId,
-            @Parameter(description = "状态过滤（可选）") @RequestParam(required = false) Integer status) {
-
-        List<KnowledgeDocument> allDocs;
-        if (knowledgeBaseId != null) {
-            allDocs = knowledgeDocumentService.getDocumentsByKnowledgeBaseId(knowledgeBaseId);
-        } else if (userId != null) {
-            allDocs = knowledgeDocumentService.getDocumentsByUserId(userId);
-        } else {
-            allDocs = knowledgeDocumentService.list();
-        }
-
-        if (status != null) {
-            allDocs = allDocs.stream().filter(d -> status.equals(d.getStatus())).collect(Collectors.toList());
-        }
-
-        int total = allDocs.size();
-        int start = (current - 1) * size;
-        int end = Math.min(start + size, total);
-        List<KnowledgeDocument> pageDocs = start < total ? allDocs.subList(start, end) : Collections.emptyList();
-
-        for (KnowledgeDocument doc : pageDocs) {
-            List<String> tagIds = knowledgeTagService.getTagIdsByDocId(doc.getDocId());
-            if (!tagIds.isEmpty()) {
-                List<KnowledgeTag> tags = knowledgeTagService.listByIds(tagIds);
-                doc.setTags(tags.stream().map(KnowledgeTag::getName).collect(Collectors.joining(",")));
-            }
-        }
-
-        Page<KnowledgeDocument> page = new Page<>(current, size);
-        page.setRecords(pageDocs);
-        page.setTotal(total);
-
-        return R.ok(page);
+    @Operation(summary = "获取文档列表", description = "分页查询知识库下的文档列表")
+    public R<Page<KnowledgeDocument>> getDocuments(@RequestParam KnowledgeDocument knowledgeDocument) {
+        PageUtils.startPage();
+        return R.ok(knowledgeDocumentService.getDocumentsPageList(JsonUtils.toMap(knowledgeDocument)));
     }
 
     /**

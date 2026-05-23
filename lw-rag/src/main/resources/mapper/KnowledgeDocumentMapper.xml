@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.weaving.llm.rag.mapper.KnowledgeDocumentMapper">
+
+    <!-- 分页查询知识库下的文档列表（PageHelper 自动分页） -->
+    <select id="selectDocumentsByKnowledgeBaseId" resultType="com.weaving.llm.common.domain.KnowledgeDocument">
+        SELECT doc_id, user_id, knowledge_base_id, title, content, type, source, tags,
+               vector_id, chunk_index, chunk_size, chunking_strategy, chunk_count,
+               status, create_time, update_time, deleted
+        FROM knowledge_document
+        WHERE deleted = 0
+        <if test="knowledgeBaseId != null">
+            AND knowledge_base_id = #{knowledgeBaseId}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="title != null and title != ''">
+            AND title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="type != null and type != ''">
+            AND type = #{type}
+        </if>
+        <if test="userId != null">
+            AND user_id = #{userId}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

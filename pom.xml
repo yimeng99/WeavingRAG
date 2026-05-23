@@ -120,11 +120,52 @@
                 <artifactId>fastjson</artifactId>
                 <version>2.0.40</version>
             </dependency>
+
+            <!-- 阿里JSON解析器 -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>2.0.40</version>
+            </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>3.5.9</version>
             </dependency>
+            <!--mybatis-plus适配springboot3核心起步依赖-->
+<!--            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>3.5.11</version>
+            </dependency>
+
+            &lt;!&ndash;mybatis-plus分页插件使用必须依赖项&ndash;&gt;
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>3.5.11</version>
+            </dependency>-->
+
+            <!-- jsqlparser for PageHelper -->
+ <!--           <dependency>
+                <groupId>net.sf.jsqlparser</groupId>
+                <artifactId>jsqlparser</artifactId>
+                <version>4.5</version>
+            </dependency>-->
+            <!-- https://mvnrepository.com/artifact/com.github.pagehelper/pagehelper-spring-boot-starter -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>1.4.7</version>
+            </dependency>
+
+            <!-- javax.servlet-api -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+
             <dependency>
                 <groupId>dev.langchain4j</groupId>
                 <artifactId>langchain4j-community-dashscope</artifactId>

@@ -43,7 +43,7 @@ export const knowledgeApi = {
    * 创建文档
    */
   saveDocument(data) {
-    return request.post('/knowledge/document/save', data)
+    return request.post('/knowledge/documents/save', data)
   },
 
   /**

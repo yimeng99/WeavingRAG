@@ -8,6 +8,7 @@ const router = useRouter()
 const route = useRoute()
 
 const docId = route.params.id
+const knowledgeBaseId = ref('')
 const docTitle = ref('')
 const chunks = ref([])
 const loading = ref(false)
@@ -29,6 +30,7 @@ const loadDocument = async () => {
     const data = await response.json()
     if (data.code === 200 && data.data) {
       docTitle.value = data.data.title || '未知文档'
+      knowledgeBaseId.value = data.data.knowledgeBaseId || ''
     }
   } catch (e) {
     console.error('加载文档信息失败', e)
@@ -36,17 +38,23 @@ const loadDocument = async () => {
 }
 
 const loadChunks = async () => {
-  if (!docId) return
+  if (!docId || !knowledgeBaseId.value) return
   loading.value = true
   try {
-    const response = await fetch(`/api/v0/knowledge/documents/${docId}/chunks`)
+    const params = new URLSearchParams({
+      knowledgeBaseId: knowledgeBaseId.value,
+      docId: docId,
+      current: pagination.value.current,
+      size: pagination.value.pageSize
+    })
+    const response = await fetch(`/api/v0/knowledge/chunk/list?${params}`)
     const data = await response.json()
-    if (data.code === 200) {
-      chunks.value = data.data || []
-      pagination.value.total = chunks.value.length
-      pagination.value.totalPages = Math.ceil(chunks.value.length / pagination.value.pageSize)
+    if (data.code === 200 && data.data) {
+      chunks.value = data.data.records || []
+      pagination.value.total = data.data.total || 0
+      pagination.value.totalPages = data.data.totalPages || 0
     } else {
-      message.error('加载切片失败')
+      message.error(data.msg || '加载切片失败')
     }
   } catch (e) {
     console.error('加载切片异常:', e)
@@ -68,44 +76,20 @@ const copyChunk = (content) => {
 const handlePageChange = (page) => {
   if (page < 1 || page > pagination.value.totalPages) return
   pagination.value.current = page
+  loadChunks()
 }
 
 const handlePageSizeChange = (size) => {
   pagination.value.pageSize = size
   pagination.value.current = 1
-  pagination.value.totalPages = Math.ceil(filteredChunksTotal.value / size)
+  loadChunks()
 }
-
-const filteredChunksTotal = computed(() => {
-  if (!searchText.value) return chunks.value.length
-  return chunks.value.filter(chunk => 
-    chunk.content?.toLowerCase().includes(searchText.value.toLowerCase())
-  ).length
-})
-
-const filteredChunks = computed(() => {
-  let result = chunks.value
-  
-  if (searchText.value) {
-    result = result.filter(chunk => 
-      chunk.content?.toLowerCase().includes(searchText.value.toLowerCase())
-    )
-  }
-  
-  pagination.value.total = result.length
-  pagination.value.totalPages = Math.ceil(result.length / pagination.value.pageSize)
-  
-  const start = (pagination.value.current - 1) * pagination.value.pageSize
-  const end = start + pagination.value.pageSize
-  
-  return result.slice(start, end)
-})
 
 const visiblePages = computed(() => {
   const current = pagination.value.current
   const total = pagination.value.totalPages
   const pages = []
-  
+
   if (total <= 7) {
     for (let i = 1; i <= total; i++) pages.push(i)
   } else {
@@ -125,12 +109,13 @@ const visiblePages = computed(() => {
       pages.push(total)
     }
   }
-  
+
   return pages
 })
 
 const handleSearch = () => {
   pagination.value.current = 1
+  loadChunks()
 }
 
 const getStatusText = (status) => {
@@ -150,14 +135,14 @@ const rechunkSingle = async (chunk) => {
     message.error('切片 ID 不存在')
     return
   }
-  
+
   try {
     const response = await fetch(`/api/v0/knowledge/chunks/${chunk.id}/rechunk`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     })
     const data = await response.json()
-    
+
     if (data.code === 200) {
       message.success('重新切片成功')
       loadChunks()
@@ -175,17 +160,17 @@ const deleteChunk = async (chunk) => {
     message.error('切片 ID 不存在')
     return
   }
-  
+
   if (!confirm('确定要删除该切片吗？此操作不可恢复。')) {
     return
   }
-  
+
   try {
     const response = await fetch(`/api/v0/knowledge/chunks/${chunk.id}`, {
       method: 'DELETE'
     })
     const data = await response.json()
-    
+
     if (data.code === 200) {
       message.success('删除成功')
       loadChunks()
@@ -199,8 +184,9 @@ const deleteChunk = async (chunk) => {
 }
 
 onMounted(() => {
-  loadDocument()
-  loadChunks()
+  loadDocument().then(() => {
+    loadChunks()
+  })
 })
 </script>
 
@@ -233,7 +219,7 @@ onMounted(() => {
       <div class="stats-bar">
         <div class="stat-item">
           <span class="stat-label">总切片数</span>
-          <span class="stat-value">{{ chunks.length }}</span>
+          <span class="stat-value">{{ pagination.total }}</span>
         </div>
         <div class="stat-item">
           <span class="stat-label">已向量化</span>
@@ -250,15 +236,15 @@ onMounted(() => {
         <p>加载中...</p>
       </div>
 
-      <div class="empty-state" v-else-if="filteredChunks.length === 0">
+      <div class="empty-state" v-else-if="chunks.length === 0">
         <IconSvg name="file" :size="40" color="#d1d5db" />
         <p>暂无切片数据</p>
       </div>
 
       <template v-else>
         <div class="chunks-list">
-          <div 
-            v-for="(chunk, index) in filteredChunks"
+          <div
+            v-for="(chunk, index) in chunks"
             :key="chunk.id || index"
             class="chunk-card"
           >

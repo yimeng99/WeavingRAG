@@ -1,5 +1,6 @@
 package com.weaving.llm.app.config;
 
+import com.weaving.llm.common.interceptor.LoggingInterceptor;
 import com.weaving.llm.common.interceptor.TokenInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +17,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private TokenInterceptor tokenInterceptor;
 
+    @Autowired
+    private LoggingInterceptor loggingInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册 Token 拦截器，拦截所有请求
+        // 注册日志拦截器（最先执行，打印请求日志）
+        registry.addInterceptor(loggingInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/static/**",
+                        "/favicon.ico"
+                );
+
+        // 注册 Token 拦截器
         registry.addInterceptor(tokenInterceptor)
                 .addPathPatterns("/**")
                 // 排除静态资源和 Swagger

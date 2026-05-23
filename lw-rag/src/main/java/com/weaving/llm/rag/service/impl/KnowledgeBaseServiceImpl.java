@@ -89,4 +89,9 @@ public class KnowledgeBaseServiceImpl extends ServiceImpl<KnowledgeBaseMapper, K
             updateById(base);
         }
     }
+
+    @Override
+    public List<KnowledgeBase> pageList(KnowledgeBase knowledgeBase) {
+        return baseMapper.pageList(knowledgeBase);
+    }
 }

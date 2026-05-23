@@ -30,6 +30,28 @@ public class KnowledgeDocumentServiceImpl extends ServiceImpl<KnowledgeDocumentM
     }
 
     @Override
+    public List<KnowledgeDocument> pageList(KnowledgeDocument knowledgeDocument) {
+        LambdaQueryWrapper<KnowledgeDocument> wrapper = new LambdaQueryWrapper<>();
+        if (knowledgeDocument.getKnowledgeBaseId() != null) {
+            wrapper.eq(KnowledgeDocument::getKnowledgeBaseId, knowledgeDocument.getKnowledgeBaseId());
+        }
+        if (knowledgeDocument.getStatus() != null) {
+            wrapper.eq(KnowledgeDocument::getStatus, knowledgeDocument.getStatus());
+        }
+        if (knowledgeDocument.getTitle() != null && !knowledgeDocument.getTitle().isEmpty()) {
+            wrapper.like(KnowledgeDocument::getTitle, knowledgeDocument.getTitle());
+        }
+        if (knowledgeDocument.getType() != null && !knowledgeDocument.getType().isEmpty()) {
+            wrapper.eq(KnowledgeDocument::getType, knowledgeDocument.getType());
+        }
+        if (knowledgeDocument.getUserId() != null) {
+            wrapper.eq(KnowledgeDocument::getUserId, knowledgeDocument.getUserId());
+        }
+        wrapper.orderByDesc(KnowledgeDocument::getCreateTime);
+        return this.list(wrapper);
+    }
+
+    @Override
     public Page<KnowledgeDocument> getDocumentsPageList(Map<String, Object> params) {
         // 创建分页对象（PageHelper 会自动从请求中获取 pageNum, pageSize）
         Page<KnowledgeDocument> page = new Page<>();

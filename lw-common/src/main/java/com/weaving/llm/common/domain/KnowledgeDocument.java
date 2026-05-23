@@ -26,12 +26,12 @@ public class KnowledgeDocument {
     private String docId;
     
     /**
-     * 用户 ID (关联 user �?
+     * 用户 ID (关联 user )
      */
     private Long userId;
     
     /**
-     * 知识�?ID (用于分组)
+     * 知识库ID (用于分组)
      */
     private String knowledgeBaseId;
     
@@ -47,16 +47,16 @@ public class KnowledgeDocument {
     private String content;
     
     /**
-     * 文档类型 (text, markdown, pdf, url �?
+     * 文档类型 (text, markdown, pdf, url...)
      */
     private String type;
     
     /**
-     * 来源 URL 或文件路�?     */
+     * 来源 URL 或文件文件路径 */
     private String source;
     
     /**
-     * 关键词标�?(逗号分隔)
+     * 关键词标(逗号分隔)
      */
     private String tags;
     
@@ -86,7 +86,7 @@ public class KnowledgeDocument {
     private Integer chunkCount;
     
     /**
-     * 状?(0:处理中，1:已完成，2:失败)
+     * 状态(0:处理中，1:已完成，2:失败)
      */
     private Integer status;
     
@@ -103,7 +103,7 @@ public class KnowledgeDocument {
     private LocalDateTime updateTime;
     
     /**
-     * 逻辑删除标识 (0:未删除，1:已删�?
+     * 逻辑删除标识 (0:未删除，1:已删)
      */
     @TableLogic
     private Integer deleted;

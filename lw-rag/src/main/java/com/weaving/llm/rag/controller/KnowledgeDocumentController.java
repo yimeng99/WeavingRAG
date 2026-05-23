@@ -2,6 +2,8 @@ package com.weaving.llm.rag.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weaving.llm.common.domain.*;
+import com.weaving.llm.common.enums.ChunkingStrategyEnum;
+import com.weaving.llm.common.pages.PageDataResult;
 import com.weaving.llm.common.pages.PageUtils;
 import com.weaving.llm.common.service.LocalFileService;
 import com.weaving.llm.common.service.RagChatAIStreamService;
@@ -9,6 +11,7 @@ import com.weaving.llm.common.service.WeavingCharService;
 import com.weaving.llm.common.utils.converter.ConversionResult;
 import com.weaving.llm.common.utils.converter.DocumentConversionService;
 import com.weaving.llm.common.utils.JsonUtils;
+import com.weaving.llm.rag.domain.dto.DocumentCreateDto;
 import com.weaving.llm.rag.service.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,10 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -81,46 +86,79 @@ public class KnowledgeDocumentController {
 
     // ==================== 文档管理 ====================
 
-    /**
-     * 获取文档列表 (分页)
-     */
     @GetMapping("/page")
     @Operation(summary = "获取文档列表", description = "分页查询知识库下的文档列表")
-    public R<Page<KnowledgeDocument>> getDocuments(@RequestParam KnowledgeDocument knowledgeDocument) {
+    public R<PageDataResult> getDocuments(@ModelAttribute KnowledgeDocument knowledgeDocument) {
         PageUtils.startPage();
-        return R.ok(knowledgeDocumentService.getDocumentsPageList(JsonUtils.toMap(knowledgeDocument)));
+        List<KnowledgeDocument> list = knowledgeDocumentService.pageList(knowledgeDocument);
+        return R.ok(PageUtils.generatePageDataResult(list));
     }
 
-    /**
-     * 获取单个文档详情
-     */
+    @PostMapping
+    @Operation(summary = "保存文档", description = "保存文档记录")
+    public R<Map<String, Object>> saveDocument(@Valid @RequestBody DocumentCreateDto dto) {
+        // 多个文件时，每文件插入一条记录
+        int savedCount = 0;
+        List<String> docIds = new ArrayList<>();
+        List<Map<String, Object>> failedFiles = new ArrayList<>();
+        List<DocumentCreateDto.FileInfoDTO> fileList = dto.getUploadFileList();
+        // 遍历每个文件，每个文件插入一条记录
+        for (DocumentCreateDto.FileInfoDTO fileInfo : fileList) {
+            File file = new File(fileInfo.getFilePath());
+            ConversionResult conversionResult = documentConversionService.convert(file);
+            if (!conversionResult.isSuccess()) {
+                log.error("文件转换失败：{}，跳过此文件", fileInfo.getFilePath());
+                Map<String, Object> failedFile = new HashMap<>();
+                failedFile.put("filePath", fileInfo.getFilePath());
+                failedFile.put("fileName", fileInfo.getFileName());
+                failedFile.put("reason", conversionResult.getErrorMessage());
+                failedFiles.add(failedFile);
+                continue;
+            }
+            KnowledgeDocument document = KnowledgeDocument.builder()
+                    .knowledgeBaseId(dto.getKnowledgeBaseId())
+                    .title(fileInfo.getFileName() != null ? fileInfo.getFileName() : dto.getTitle())
+                    .content(conversionResult.getContent())
+                    .type(conversionResult.getOriginalFileType())
+                    .source(fileInfo.getFilePath())
+                    .tags(dto.getTags())
+                    .chunkingStrategy(dto.getChunkingStrategy())
+                    .chunkSize(dto.getChunkSize())
+                    .status(1)
+                    .build();
+            knowledgeDocumentService.save(document);
+            docIds.add(document.getDocId());
+            savedCount++;
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("savedCount", savedCount);
+        result.put("docIds", docIds);
+        result.put("failedCount", failedFiles.size());
+        result.put("failedFiles", failedFiles);
+        return R.ok(result);
+    }
+
+    @GetMapping("/chunking-strategies")
+    @Operation(summary = "查询分片策略", description = "获取所有可用的分片策略列表")
+    public R<List<Map<String, String>>> getChunkingStrategiesMap() {
+        List<Map<String, String>> strategies = new ArrayList<>();
+        for (ChunkingStrategyEnum strategy : ChunkingStrategyEnum.values()) {
+            Map<String, String> item = new HashMap<>();
+            item.put("value", strategy.getCode());
+            item.put("label", strategy.getDescription());
+            strategies.add(item);
+        }
+        return R.ok(strategies);
+    }
+
+
     @GetMapping("/{docId}")
     @Operation(summary = "获取文档详情", description = "根据文档 ID 查询详细信息")
     public R<KnowledgeDocument> getDocument(@PathVariable String docId) {
         return R.ok(knowledgeDocumentService.getById(docId));
     }
 
-    /**
-     * 保存文档
-     */
-    @PostMapping
-    @Operation(summary = "保存文档", description = "保存文档记录")
-    public R<KnowledgeDocument> saveDocument(@RequestBody Map<String, Object> params) {
-        Long userId = params.get("userId") != null ? Long.valueOf(params.get("userId").toString()) : null;
-        String knowledgeBaseId = (String) params.get("knowledgeBaseId");
-        String title = (String) params.get("title");
-        String content = (String) params.get("content");
-        String type = (String) params.get("type");
-        String source = (String) params.get("source");
 
-        KnowledgeDocument doc = knowledgeDocumentService.saveDocument(userId, knowledgeBaseId, title, content, type, source);
-
-        if (knowledgeBaseId != null && doc != null) {
-            knowledgeBaseService.incrementDocCount(knowledgeBaseId);
-        }
-
-        return R.ok(doc);
-    }
 
     @PutMapping
     @Operation(summary = "更新文档", description = "更新文档信息")
@@ -191,8 +229,9 @@ public class KnowledgeDocumentController {
      */
     @PostMapping("/save")
     @Operation(summary = "保存文档", description = "保存文档并执行分片向量化")
-    public R<Map<String, Object>> saveDocumentWithChunking(@RequestBody Map<String, Object> params) {
-        Map<String, Object> result = new HashMap<>();
+    public R<Map<String, Object>> saveDocumentWithChunking(@RequestBody DocumentCreateDto documentsCreateDto) {
+        // 1. 创建基本的 文档
+/*
         try {
             String knowledgeBaseId = (String) params.get("knowledgeBaseId");
             String fileName = (String) params.get("fileName");
@@ -306,7 +345,8 @@ public class KnowledgeDocumentController {
         } catch (Exception e) {
             log.error("保存文档失败", e);
             return R.fail("保存失败：" + e.getMessage());
-        }
+        }*/
+        return R.ok();
     }
 
     /**

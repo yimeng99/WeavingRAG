@@ -20,4 +20,6 @@ public interface KnowledgeBaseService extends IService<KnowledgeBase> {
     void incrementDocCount(String baseId);
     
     void decrementDocCount(String baseId);
+
+    List<KnowledgeBase> pageList(KnowledgeBase knowledgeBase);
 }

@@ -21,6 +21,12 @@ public interface KnowledgeDocumentService extends IService<KnowledgeDocument> {
      */
     List<KnowledgeDocument> getDocumentsByKnowledgeBaseId(String knowledgeBaseId);
 
+    /**
+     * 分页查询文档列表（支持动态条件）
+     * @param knowledgeDocument 查询条件对象
+     * @return 文档列表
+     */
+    List<KnowledgeDocument> pageList(KnowledgeDocument knowledgeDocument);
 
     Page<KnowledgeDocument> getDocumentsPageList(Map<String, Object> params);
 

@@ -1,5 +1,6 @@
 package com.weaving.llm.rag.service.impl;
 
+import com.weaving.llm.common.domain.DocumentChunk;
 import com.weaving.llm.common.domain.KnowledgeDocument;
 import com.weaving.llm.rag.service.VectorStoreService;
 import dev.langchain4j.data.document.Document;
@@ -418,5 +419,61 @@ public class ChromaVectorStoreServiceImpl implements VectorStoreService {
         }
 
         return stats;
+    }
+
+    @Override
+    public Map<String, Object> embedDocumentChunks(List<DocumentChunk> chunks) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (!isAvailable()) {
+            result.put("success", false);
+            result.put("message", "向量存储服务不可用");
+            return result;
+        }
+
+        if (chunks == null || chunks.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "切片列表为空");
+            return result;
+        }
+
+        try {
+            log.info("开始向量化切片，共 {} 个切片", chunks.size());
+
+            List<TextSegment> segmentsWithMetadata = new ArrayList<>();
+            List<String> vectorIds = new ArrayList<>();
+
+            for (int i = 0; i < chunks.size(); i++) {
+                DocumentChunk chunk = chunks.get(i);
+
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("chunkId", chunk.getChunkId());
+                metadata.put("docId", chunk.getDocId());
+                metadata.put("chunkIndex", String.valueOf(chunk.getChunkIndex()));
+
+                TextSegment segment = TextSegment.from(chunk.getContent(), metadata);
+                segmentsWithMetadata.add(segment);
+
+                String vectorId = chunk.getDocId() + "_chunk_" + chunk.getChunkIndex();
+                vectorIds.add(vectorId);
+            }
+
+            List<Embedding> embeddings = embeddingModel.embedAll(segmentsWithMetadata).content();
+            embeddingStore.addAll(vectorIds, embeddings, segmentsWithMetadata);
+
+            log.info("切片向量化完成，共 {} 个", vectorIds.size());
+
+            result.put("success", true);
+            result.put("message", "向量化完成");
+            result.put("chunkCount", vectorIds.size());
+            result.put("vectorIds", vectorIds);
+
+        } catch (Exception e) {
+            log.error("切片向量化失败：{}", e.getMessage(), e);
+            result.put("success", false);
+            result.put("message", "向量化失败：" + e.getMessage());
+        }
+
+        return result;
     }
 }

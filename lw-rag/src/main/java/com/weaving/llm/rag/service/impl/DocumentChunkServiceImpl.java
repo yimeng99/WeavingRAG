@@ -60,4 +60,12 @@ public class DocumentChunkServiceImpl extends ServiceImpl<DocumentChunkMapper, D
         removeById(chunkId);
         log.info("删除切片: chunkId={}", chunkId);
     }
+
+    @Override
+    public List<DocumentChunk> getChunksByDocIds(List<String> docIds) {
+        LambdaQueryWrapper<DocumentChunk> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(DocumentChunk::getDocId, docIds)
+               .orderByAsc(DocumentChunk::getDocId, DocumentChunk::getChunkIndex);
+        return list(wrapper);
+    }
 }

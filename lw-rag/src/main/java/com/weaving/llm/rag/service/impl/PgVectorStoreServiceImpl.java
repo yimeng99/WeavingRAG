@@ -110,4 +110,9 @@ public class PgVectorStoreServiceImpl implements VectorStoreService {
     public Map<String, Object> getStatistics() {
         return new HashMap<>();
     }
+
+    // @Override
+    // public Map<String, Object> embedDocumentChunks(List<DocumentChunk> chunks) {
+    //     return null;
+    // }
 }

@@ -1,5 +1,6 @@
 package com.weaving.llm.rag.service;
 
+import com.weaving.llm.common.domain.DocumentChunk;
 import com.weaving.llm.common.domain.KnowledgeDocument;
 
 import java.util.List;
@@ -120,4 +121,6 @@ public interface VectorStoreService {
      * @return 向量维度
      */
     int getVectorDimension();
+
+    Map<String, Object> embedDocumentChunks(List<DocumentChunk> chunks);
 }

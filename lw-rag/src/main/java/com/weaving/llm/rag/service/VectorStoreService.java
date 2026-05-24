@@ -122,5 +122,5 @@ public interface VectorStoreService {
      */
     int getVectorDimension();
 
-    Map<String, Object> embedDocumentChunks(List<DocumentChunk> chunks);
+    void embedDocumentChunks(List<DocumentChunk> chunks);
 }

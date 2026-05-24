@@ -19,5 +19,5 @@ public interface DocumentChunkService extends IService<DocumentChunk> {
 
     void deleteChunksByChunkId(String chunkId);
 
-    List<DocumentChunk> getChunksByDocIds(List<String> docIds);
+    List<DocumentChunk> getDocumentChunksByDocIds(List<String> docIds);
 }

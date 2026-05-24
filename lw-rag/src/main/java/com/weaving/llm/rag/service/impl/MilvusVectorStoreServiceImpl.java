@@ -1,5 +1,6 @@
 package com.weaving.llm.rag.service;
 
+import com.weaving.llm.common.domain.DocumentChunk;
 import com.weaving.llm.common.domain.KnowledgeDocument;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
@@ -14,6 +15,7 @@ import dev.langchain4j.store.embedding.filter.Filter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,9 +29,9 @@ import static dev.langchain4j.data.document.Metadata.metadata;
  * @Author: 依梦
  * @Date: 2025/10/27
  */
-// @Slf4j
-// @Service("milvusVectorStoreService")
-// @Profile("milvus")  // 使用 Profile 控制启用
+@Slf4j
+@Service("milvusVectorStoreService")
+@Profile("milvus")  // 使用 Profile 控制启用
 public class MilvusVectorStoreServiceImpl implements VectorStoreService {
 
     // @Autowired(required = false)
@@ -55,6 +57,40 @@ public class MilvusVectorStoreServiceImpl implements VectorStoreService {
     @Override
     public int getVectorDimension() {
         return 1024;
+    }
+
+    @Override
+    public void embedDocumentChunks(List<DocumentChunk> chunks) {
+        // 检查服务是否可用
+        if (!isAvailable()) {
+            log.warn("Milvus 向量存储服务不可用，跳过切片向量化");
+            return;
+        }
+
+        if (chunks == null || chunks.isEmpty()) {
+            log.warn("切片列表为空，跳过向量化");
+            return;
+        }
+
+        try {
+            log.info("开始向量化切片，共 {} 个切片", chunks.size());
+
+            // TODO: 实现 Milvus 向量存储逻辑
+            // 1. 将切片内容生成向量
+            // 2. 存储到 Milvus
+
+            for (DocumentChunk chunk : chunks) {
+//                log.debug("处理切片: chunkId={}, docId={}, chunkIndex={}",
+//                        chunk.getChunkId(), chunk.getDocId(), chunk.getChunkIndex());
+                // 实现具体的向量化和存储逻辑
+            }
+
+            log.info("切片向量化完成，共 {} 个", chunks.size());
+
+        } catch (Exception e) {
+            log.error("切片向量化失败：{}", e.getMessage(), e);
+            throw new RuntimeException("切片向量化失败：" + e.getMessage(), e);
+        }
     }
 
     @Override

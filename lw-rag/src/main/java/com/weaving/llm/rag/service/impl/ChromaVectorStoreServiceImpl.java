@@ -35,7 +35,7 @@ import static dev.langchain4j.data.document.Metadata.metadata;
  * @Description: 基于 LangChain4j 的 Chroma 向量存储实现
  */
 @Slf4j
-@Service("chromaVectorStoreService")
+//@Service("chromaVectorStoreService")
 public class ChromaVectorStoreServiceImpl implements VectorStoreService {
 
     @Autowired(required = false)
@@ -422,19 +422,15 @@ public class ChromaVectorStoreServiceImpl implements VectorStoreService {
     }
 
     @Override
-    public Map<String, Object> embedDocumentChunks(List<DocumentChunk> chunks) {
+    public void embedDocumentChunks(List<DocumentChunk> chunks) {
         Map<String, Object> result = new HashMap<>();
 
         if (!isAvailable()) {
-            result.put("success", false);
-            result.put("message", "向量存储服务不可用");
-            return result;
+            throw new RuntimeException("向量存储服务不可用");
         }
 
         if (chunks == null || chunks.isEmpty()) {
-            result.put("success", false);
-            result.put("message", "切片列表为空");
-            return result;
+            throw new RuntimeException("切片列表为空");
         }
 
         try {
@@ -447,12 +443,12 @@ public class ChromaVectorStoreServiceImpl implements VectorStoreService {
                 DocumentChunk chunk = chunks.get(i);
 
                 Map<String, Object> metadata = new HashMap<>();
-                metadata.put("chunkId", chunk.getChunkId());
+                metadata.put("chunkId", chunk.getId());
                 metadata.put("docId", chunk.getDocId());
                 metadata.put("chunkIndex", String.valueOf(chunk.getChunkIndex()));
 
-                TextSegment segment = TextSegment.from(chunk.getContent(), metadata);
-                segmentsWithMetadata.add(segment);
+//                TextSegment segment = TextSegment.from(chunk.getContent(), metadata);
+//                segmentsWithMetadata.add(segment);
 
                 String vectorId = chunk.getDocId() + "_chunk_" + chunk.getChunkIndex();
                 vectorIds.add(vectorId);
@@ -473,7 +469,5 @@ public class ChromaVectorStoreServiceImpl implements VectorStoreService {
             result.put("success", false);
             result.put("message", "向量化失败：" + e.getMessage());
         }
-
-        return result;
     }
 }

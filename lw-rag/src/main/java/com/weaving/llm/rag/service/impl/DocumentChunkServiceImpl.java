@@ -62,7 +62,7 @@ public class DocumentChunkServiceImpl extends ServiceImpl<DocumentChunkMapper, D
     }
 
     @Override
-    public List<DocumentChunk> getChunksByDocIds(List<String> docIds) {
+    public List<DocumentChunk> getDocumentChunksByDocIds(List<String> docIds) {
         LambdaQueryWrapper<DocumentChunk> wrapper = new LambdaQueryWrapper<>();
         wrapper.in(DocumentChunk::getDocId, docIds)
                .orderByAsc(DocumentChunk::getDocId, DocumentChunk::getChunkIndex);

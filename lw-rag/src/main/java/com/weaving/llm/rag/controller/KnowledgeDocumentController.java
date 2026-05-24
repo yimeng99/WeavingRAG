@@ -1,36 +1,26 @@
 package com.weaving.llm.rag.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.weaving.llm.common.domain.*;
 import com.weaving.llm.common.enums.ChunkingStrategyEnum;
 import com.weaving.llm.common.pages.PageDataResult;
 import com.weaving.llm.common.pages.PageUtils;
 import com.weaving.llm.common.service.LocalFileService;
-import com.weaving.llm.common.service.RagChatAIStreamService;
-import com.weaving.llm.common.service.WeavingCharService;
+import com.weaving.llm.common.utils.StringUtils;
 import com.weaving.llm.common.utils.converter.ConversionResult;
 import com.weaving.llm.common.utils.converter.DocumentConversionService;
-import com.weaving.llm.common.utils.JsonUtils;
+import com.weaving.llm.rag.domain.dto.DocumentChunkDto;
 import com.weaving.llm.rag.domain.dto.DocumentCreateDto;
 import com.weaving.llm.rag.service.*;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.MediaType;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -62,10 +52,6 @@ public class KnowledgeDocumentController {
 
     @Autowired
     private TextChunkingService textChunkingService;
-
-    @Autowired
-    private CustomChunkingStrategyService customChunkingStrategyService;
-
 
     @Autowired
     private DocumentConversionService documentConversionService;
@@ -226,18 +212,18 @@ public class KnowledgeDocumentController {
     @Operation(summary = "异步批量向量化", description = "异步批量处理文档向量化")
     public R<Map<String, Object>> embedDocumentsAsync(@RequestBody List<String> docIds) {
         log.info("接收到异步批量文档向量化请求，共 {} 个文档", docIds.size());
-        List<DocumentChunk> chunks = documentChunkService.getChunksByDocIds(docIds);
-        try {
-            Map<String, Object> result = vectorStoreService.embedDocumentChunks(chunks);
-            result.put("totalDocs", docIds.size());
-            result.put("status", "processing");
-            result.put("taskId", String.valueOf(System.currentTimeMillis()));
-            return R.ok(result);
-        } catch (Exception e) {
-            return R.fail("异步处理失败：" + e.getMessage());
+        List<DocumentChunk> chunks = documentChunkService.getDocumentChunksByDocIds(docIds);
+        if (StringUtils.isEmpty(chunks)) {
+            return R.ok("切片列表为空!");
         }
-    }
+        // 1. 先调用向量化服务，将内容向量化
+//        List<DocumentChunkDto> vectorDocumentChunks =
 
+        // 2. 在调用向量化存储，将向量化后内容存储起来
+
+        vectorStoreService.embedDocumentChunks(chunks);
+        return R.ok("向量化成功!");
+    }
 
 
     /**

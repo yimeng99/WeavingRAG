@@ -13,7 +13,8 @@ public class R<T> implements Serializable {
     private String msg;
     private T data;
 
-    public R() {}
+    public R() {
+    }
 
     public R(Integer code, String msg, T data) {
         this.code = code;
@@ -27,6 +28,10 @@ public class R<T> implements Serializable {
 
     public static <T> R<T> ok(T data) {
         return new R<>(200, "success", data);
+    }
+
+    public static <T> R<T> ok(String msg) {
+        return new R<>(500, "fail", null);
     }
 
     public static <T> R<T> ok(String msg, T data) {

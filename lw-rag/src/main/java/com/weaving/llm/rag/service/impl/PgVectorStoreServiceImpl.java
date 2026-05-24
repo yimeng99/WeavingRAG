@@ -1,5 +1,6 @@
 package com.weaving.llm.rag.service;
 
+import com.weaving.llm.common.domain.DocumentChunk;
 import com.weaving.llm.common.domain.KnowledgeDocument;
 import dev.langchain4j.data.document.DocumentSplitter;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
@@ -14,6 +15,7 @@ import dev.langchain4j.store.embedding.filter.Filter;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,8 +29,8 @@ import static dev.langchain4j.data.document.Metadata.metadata;
  * @Author: 依梦
  * @Date: 2025/10/27
  */
-// @Slf4j
-// @Service("pgVectorStoreService")
+ @Slf4j
+ @Service("pgVectorStoreService")
 // @Profile("pgvector")  // 使用 Profile 控制启用
 public class PgVectorStoreServiceImpl implements VectorStoreService {
 
@@ -55,6 +57,11 @@ public class PgVectorStoreServiceImpl implements VectorStoreService {
     @Override
     public int getVectorDimension() {
         return 1024;
+    }
+
+    @Override
+    public void embedDocumentChunks(List<DocumentChunk> chunks) {
+
     }
 
     @Override

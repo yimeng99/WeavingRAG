@@ -42,6 +42,13 @@
             <artifactId>langchain4j-chroma</artifactId>
         </dependency>
 
+        <!-- Milvus 向量数据库 -->
+        <dependency>
+            <groupId>io.milvus</groupId>
+            <artifactId>milvus-sdk-java</artifactId>
+            <version>2.3.4</version>
+        </dependency>
+
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
